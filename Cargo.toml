@@ -1,0 +1,10 @@
+[workspace]
+members = ["config-lua"]
+
+[package]
+name = "video-spider"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies.config-lua]
+path = "config-lua"
