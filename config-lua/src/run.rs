@@ -1,9 +1,9 @@
 use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
-use crate::video::Video;
+use crate::series::{ Series, Episode };
 
-pub fn lua_run(path: &Path, keyword: &str) -> Result<Video, mlua::Error> {
+pub fn lua_run(path: &Path, keyword: &str) -> Result<Series, mlua::Error> {
     let lua = Lua::new();
     // add some functions for Lua
     lua.load(path).exec()?;
@@ -12,21 +12,21 @@ pub fn lua_run(path: &Path, keyword: &str) -> Result<Video, mlua::Error> {
     let name: String = table.get("name")?;
     let image: String = table.get("image")?;
     let image: Url = Url::parse(&image).unwrap();
-    let describtion: String = table.get("description")?;
-    let lua_urls: mlua::Table = table.get("urls")?;
-    let mut urls: Vec<Url> = Vec::new();
-    for i in 1..=lua_urls.len().unwrap() {
-        let url: String = lua_urls.get(i)?;
-        let url: Url = Url::parse(&url).unwrap();
-        urls.push(url);
+    let description: String = table.get("description")?;
+    let lua_episodes: mlua::Table = table.get("episodes")?;
+    let mut episodes: Vec<Episode> = Vec::new();
+    for pair in lua_episodes.pairs() {
+        let (key, value): (String, String) = pair?;
+        let value: Url = Url::parse(&value).unwrap();
+        episodes.push(Episode {name: key, addr: value});
     }
-    let video = Video {
-        name: name,
-        description: describtion,
-        image: image,
-        urls: urls,
+    let series = Series {
+        name,
+        description,
+        image,
+        episodes,
     };
-    Ok(video)
+    Ok(series)
 }
 
 #[cfg(test)]
@@ -37,12 +37,14 @@ mod tests {
     #[test]
     fn test_lua_run() {
         let path = Path::new("../tests/config-lua/simple-main.lua");
-        let video = lua_run(&path, "mykey").unwrap();
-        assert_eq!(video.name, "video_namemykey");
-        assert_eq!(video.description, "description");
-        assert_eq!(video.image.to_string(), "http://localhost/simple.png");
-        assert_eq!(2, video.urls.len());
-        assert_eq!(video.urls.get(0).unwrap().to_string(), "http://localhost/simple1.mp4");
-        assert_eq!(video.urls.get(1).unwrap().to_string(), "http://localhost/simple2.mp4");
+        let series = lua_run(&path, "mykey").unwrap();
+        assert_eq!(series.name, "video_namemykey");
+        assert_eq!(series.description, "description");
+        assert_eq!(series.image.to_string(), "http://localhost/simple.png");
+        assert_eq!(series.episodes.len(), 2);
+        assert_eq!(series.episodes.get(0).unwrap().name, "1");
+        assert_eq!(series.episodes.get(0).unwrap().addr.to_string(), "http://localhost/simple1.mp4");
+        assert_eq!(series.episodes.get(1).unwrap().name, "2");
+        assert_eq!(series.episodes.get(1).unwrap().addr.to_string(), "http://localhost/simple2.mp4");
     }
 }

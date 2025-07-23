@@ -1,3 +1,3 @@
 
 pub mod run;
-pub mod video;
+pub mod series;
