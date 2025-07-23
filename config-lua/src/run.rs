@@ -5,6 +5,7 @@ use crate::video::Video;
 
 pub fn lua_run(path: &Path, keyword: &str) -> Result<Video, mlua::Error> {
     let lua = Lua::new();
+    // add some functions for Lua
     lua.load(path).exec()?;
     let main: mlua::Function = lua.globals().get("main")?;
     let table: mlua::Table = main.call(keyword)?;
@@ -14,7 +15,7 @@ pub fn lua_run(path: &Path, keyword: &str) -> Result<Video, mlua::Error> {
     let describtion: String = table.get("description")?;
     let lua_urls: mlua::Table = table.get("urls")?;
     let mut urls: Vec<Url> = Vec::new();
-    for i in 1..lua_urls.len().unwrap()+1 {
+    for i in 1..=lua_urls.len().unwrap() {
         let url: String = lua_urls.get(i)?;
         let url: Url = Url::parse(&url).unwrap();
         urls.push(url);
