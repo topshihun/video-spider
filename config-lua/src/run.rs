@@ -11,11 +11,11 @@ pub fn lua_run(path: &Path, keyword: &str) -> Result<Video, mlua::Error> {
     let name: String = table.get("name")?;
     let image: String = table.get("image")?;
     let image: Url = Url::parse(&image).unwrap();
-    let describtion: String = table.get("description").unwrap();
-    let lua_urls: mlua::Table = table.get("urls").unwrap();
+    let describtion: String = table.get("description")?;
+    let lua_urls: mlua::Table = table.get("urls")?;
     let mut urls: Vec<Url> = Vec::new();
     for i in 1..lua_urls.len().unwrap()+1 {
-        let url: String = lua_urls.get(i).unwrap();
+        let url: String = lua_urls.get(i)?;
         let url: Url = Url::parse(&url).unwrap();
         urls.push(url);
     }
@@ -34,7 +34,7 @@ mod tests {
     use crate::run::lua_run;
     
     #[test]
-    fn test_run() {
+    fn test_lua_run() {
         let path = Path::new("../tests/config-lua/simple-main.lua");
         let video = lua_run(&path, "mykey").unwrap();
         assert_eq!(video.name, "video_namemykey");
