@@ -9,6 +9,7 @@ edition = "2024"
 [dependencies]
 url = { version = "2.5" }
 config = { version = "0.15" }
+dirs = { version = "6.0" }
 
 [dependencies.config-lua]
 path = "config-lua"
