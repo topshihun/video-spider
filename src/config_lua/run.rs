@@ -36,7 +36,7 @@ mod tests {
     
     #[test]
     fn test_lua_run() {
-        let path = Path::new("./tests/config_lua/simple-main.lua");
+        let path = Path::new("./tests/config_lua/simple_main.lua");
         let series = lua_run(&path, "mykey").unwrap();
         assert_eq!(series.name, "video_namemykey");
         assert_eq!(series.description, "description");
