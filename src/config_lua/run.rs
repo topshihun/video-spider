@@ -1,7 +1,7 @@
 use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
-use crate::series::{ Series, Episode };
+use super::series::{ Series, Episode };
 
 pub fn lua_run(path: &Path, keyword: &str) -> Result<Series, mlua::Error> {
     let lua = Lua::new();
@@ -32,19 +32,19 @@ pub fn lua_run(path: &Path, keyword: &str) -> Result<Series, mlua::Error> {
 #[cfg(test)]
 mod tests {
     use std::path::Path;
-    use crate::run::lua_run;
+    use super::super::run::lua_run;
     
     #[test]
     fn test_lua_run() {
-        let path = Path::new("../tests/config-lua/simple-main.lua");
+        let path = Path::new("./tests/config-lua/simple-main.lua");
         let series = lua_run(&path, "mykey").unwrap();
         assert_eq!(series.name, "video_namemykey");
         assert_eq!(series.description, "description");
         assert_eq!(series.image.to_string(), "http://localhost/simple.png");
         assert_eq!(series.episodes.len(), 2);
-        assert_eq!(series.episodes.get(0).unwrap().name, "1");
-        assert_eq!(series.episodes.get(0).unwrap().addr.to_string(), "http://localhost/simple1.mp4");
-        assert_eq!(series.episodes.get(1).unwrap().name, "2");
-        assert_eq!(series.episodes.get(1).unwrap().addr.to_string(), "http://localhost/simple2.mp4");
+        assert_eq!(series.episodes.get(0).unwrap().name, "2");
+        assert_eq!(series.episodes.get(0).unwrap().addr.to_string(), "http://localhost/simple2.mp4");
+        assert_eq!(series.episodes.get(1).unwrap().name, "1");
+        assert_eq!(series.episodes.get(1).unwrap().addr.to_string(), "http://localhost/simple1.mp4");
     }
 }

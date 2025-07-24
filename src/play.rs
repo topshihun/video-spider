@@ -1,5 +1,5 @@
 use std::process::Command;
-use config_lua::series::Episode;
+use super::config_lua::series::Episode;
 
 pub fn play(episode: &Episode) -> Result<(), String> {
     let output = match Command::new("mpv")

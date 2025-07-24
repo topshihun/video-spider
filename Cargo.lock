@@ -94,14 +94,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "config-lua"
-version = "0.0.1"
-dependencies = [
- "mlua",
- "url",
-]
-
-[[package]]
 name = "const-random"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -892,8 +884,8 @@ name = "video-spider"
 version = "0.0.1"
 dependencies = [
  "config",
- "config-lua",
  "dirs",
+ "mlua",
  "url",
 ]
 
