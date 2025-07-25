@@ -1,5 +1,6 @@
 
 pub enum Error {
+    PlayFailed(String),
     Failed,
 }
 
