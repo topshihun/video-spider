@@ -10,7 +10,7 @@ pub struct LuaFile {
 
 pub fn get_lua_files() -> Vec<LuaFile> {
     let mut config_path = config_dir().expect("Can't find config directory.");
-    config_path.push(env!("CARGO_PKG_NAME"));
+    config_path.push("videospider");
     std::fs::create_dir_all(&config_path).expect("Failed to create config path");
     let mut lua_files: Vec<LuaFile> = Vec::new();
     for entry in read_dir(config_path).unwrap() {
