@@ -2,10 +2,12 @@ use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
 use super::series::{ Series, Episode };
+use super::extension::lua_extension;
 
 pub fn lua_run(path: &Path, keyword: &str) -> Result<Vec<Series>, mlua::Error> {
     let lua = Lua::new();
     // add some functions for Lua
+    lua_extension(&lua)?;
     lua.load(path).exec()?;
     let main: mlua::Function = lua.globals().get("main")?;
     let series_list: mlua::Table = main.call(keyword)?;
