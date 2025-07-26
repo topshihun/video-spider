@@ -11,7 +11,7 @@ use super::config_lua::run::lua_run;
 const THREAD_NUM: usize = 10;
 
 pub enum SearchMessage {
-    Continue(LuaFile, Result<Series>),
+    Continue(LuaFile, Result<Vec<Series>>),
     Finished,
 }
 
@@ -27,8 +27,8 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
             if channel_valid.load(Ordering::SeqCst) == false {
                 return;
             }
-            if let Ok(series) = lua_run(&lua_file.path, &keyword) {
-                if sender.send(SearchMessage::Continue(lua_file, Ok(series))).is_err() {
+            if let Ok(series_list) = lua_run(&lua_file.path, &keyword) {
+                if sender.send(SearchMessage::Continue(lua_file, Ok(series_list))).is_err() {
                     channel_valid.store(false, Ordering::SeqCst);
                 }
             } else {
