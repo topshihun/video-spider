@@ -78,7 +78,7 @@ fn json_parse(lua: &Lua, data: String) -> Result<Table> {
 }
 
 // Lua function
-fn string_spilt(lua: &Lua, (data, split_str): (String, String)) -> Result<Table> {
+fn string_split(lua: &Lua, (data, split_str): (String, String)) -> Result<Table> {
     let split: Vec<&str> = data.split(&split_str).collect();
     let table = lua.create_table()?;
     for v in split {
@@ -103,7 +103,7 @@ pub fn lua_extension(lua: &Lua) -> Result<()> {
 
     utils.set("http_get", lua.create_function(http_get)?)?;
     utils.set("json_parse", lua.create_function(json_parse)?)?;
-    utils.set("string_spilt", lua.create_function(string_spilt)?)?;
+    utils.set("string_split", lua.create_function(string_split)?)?;
     utils.set("url_encode", lua.create_function(url_encode)?)?;
     utils.set("url_decode", lua.create_function(url_decode)?)?;
 
@@ -115,10 +115,29 @@ pub fn lua_extension(lua: &Lua) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::{
+        string_split,
         url_encode,
         url_decode,
     };
-    use mlua::Lua;
+    use mlua::{Lua, Table};
+
+    #[test]
+    fn test_string_split() {
+        let lua = Lua::new();
+        lua.globals()
+            .set("string_split", lua.create_function(string_split).unwrap())
+            .unwrap();
+        lua.load(r#"
+            res = string_split("name:myname:yourname", ":")
+            "#)
+            .exec()
+            .unwrap();
+        let res: Table = lua.globals().get("res").unwrap();
+        assert_eq!(res.len().unwrap(), 3);
+        assert_eq!(res.get::<String>(1).unwrap(), "name");
+        assert_eq!(res.get::<String>(2).unwrap(), "myname");
+        assert_eq!(res.get::<String>(3).unwrap(), "yourname");
+    }
 
     #[test]
     fn test_url_encode() {
