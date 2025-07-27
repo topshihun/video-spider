@@ -6,6 +6,7 @@ use std::string::String;
 // Lua function
 fn http_get(_: &Lua, url: &str) -> Result<String> {
     let body = reqwest::blocking::get(url)
+        // TODO: result
         .unwrap()
         .text()
         .unwrap();
