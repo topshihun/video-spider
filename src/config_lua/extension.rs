@@ -4,7 +4,7 @@ use serde_json::Value;
 use std::string::String;
 
 // Lua function
-fn http_get(_: &Lua, url: &str) -> Result<String> {
+fn http_get(_: &Lua, url: String) -> Result<String> {
     let body = reqwest::blocking::get(url)
         // TODO: result
         .unwrap()
@@ -73,6 +73,7 @@ fn json_to_table(lua: &Lua, table: &Table, key: Option<&str>, value: &Value) -> 
 fn json_parse(lua: &Lua, data: String) -> Result<Table> {
     let table = lua.create_table()?;
     let json: Value = serde_json::from_str(&data).expect("json parse failed");
+    json_to_table(lua, &table, Option::None, &json)?;
     Ok(table)
 }
 
