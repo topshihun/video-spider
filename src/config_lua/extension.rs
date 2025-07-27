@@ -111,3 +111,42 @@ pub fn lua_extension(lua: &Lua) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        url_encode,
+        url_decode,
+    };
+    use mlua::Lua;
+
+    #[test]
+    fn test_url_encode() {
+        let lua = Lua::new();
+        lua.globals()
+            .set("url_encode", lua.create_function(url_encode).unwrap())
+            .unwrap();
+        lua.load(r#"
+            res = url_encode("ac=b&b=ac")
+            "#)
+            .exec()
+            .unwrap();
+        let res: String = lua.globals().get("res").unwrap();
+        assert_eq!(res, "ac%3Db%26b%3Dac");
+    }
+
+    #[test]
+    fn test_url_decode() {
+        let lua = Lua::new();
+        lua.globals()
+            .set("url_decode", lua.create_function(url_decode).unwrap())
+            .unwrap();
+        lua.load(r#"
+            res = url_decode("ac%3Db%26b%3Dac")
+            "#)
+            .exec()
+            .unwrap();
+        let res: String = lua.globals().get("res").unwrap();
+        assert_eq!(res, "ac=b&b=ac");
+    }
+}
