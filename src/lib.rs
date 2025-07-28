@@ -1,5 +1,5 @@
-mod play;
-mod search;
-mod luafiles;
-mod config_lua;
-mod error;
+pub mod play;
+pub mod search;
+pub mod luafiles;
+pub mod config_lua;
+pub mod error;
