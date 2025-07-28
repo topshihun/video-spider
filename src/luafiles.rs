@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::fs::read_dir;
 use dirs::config_dir;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct LuaFile {
     pub name: String,
     pub path: PathBuf,

@@ -10,6 +10,7 @@ use super::config_lua::run::lua_run;
 
 const THREAD_NUM: usize = 10;
 
+#[derive(PartialEq)]
 pub enum SearchMessage {
     Continue(LuaFile, Result<Vec<Series>>),
     Finished,
