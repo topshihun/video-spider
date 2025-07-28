@@ -46,7 +46,7 @@ fn json_to_table(lua: &Lua, table: &Table, key: Option<&str>, value: &Value) -> 
         Value::Array(a) => {
             let arr = lua.create_table()?;
             for v in a {
-                json_to_table(lua, table, Option::None, v)?;
+                json_to_table(lua, &arr, Option::None, v)?;
             }
             if let Some(k) = key {
                 table.set(k, arr)?;
@@ -55,14 +55,16 @@ fn json_to_table(lua: &Lua, table: &Table, key: Option<&str>, value: &Value) -> 
             }
         },
         Value::Object(o) => {
-            let map = lua.create_table()?;
-            for (k, v) in o {
-                json_to_table(lua, &map, Some(k), v)?;
-            }
             if let Some(k) = key {
+                let map = lua.create_table()?;
+                for (k, v) in o {
+                    json_to_table(lua, &map, Some(k), v)?;
+                }
                 table.set(k, map)?;
             } else {
-                table.push(map)?;
+                for (k, v) in o {
+                    json_to_table(lua, table, Some(k), v)?;
+                }
             }
         },
     }
@@ -115,11 +117,50 @@ pub fn lua_extension(lua: &Lua) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::{
+        json_parse,
         string_split,
         url_encode,
         url_decode,
+        lua_extension,
     };
     use mlua::{Lua, Table};
+
+    #[test]
+    // Just check usage of these functions call
+    fn test_lua_extension() {
+        let lua = Lua::new();
+        lua_extension(&lua).unwrap();
+        lua.load(r#"
+            http_get_res = utils.http_get("https://bing.com")
+            json_parse_res = utils.json_parse('{"test": "test"}')
+            string_split_res = utils.string_split("test=test=test", "=")
+            url_encode = utils.url_encode("1=1&2=2")
+            url_decode = utils.url_decode("1%3D1%262%3D2")
+            "#)
+            .exec()
+            .unwrap();
+    }
+
+    #[test]
+    fn test_json_parse() {
+        let lua = Lua::new();
+        lua.globals()
+            .set("json_parse", lua.create_function(json_parse).unwrap())
+            .unwrap();
+        lua.load(r#"
+            rose = json_parse('{"name": "Rose", "age": 18, "hobby": ["computer game", "gardening"]}')
+            "#)
+            .exec()
+            .unwrap();
+
+        let rose: Table = lua.globals().get("rose").unwrap();
+        assert_eq!(rose.get::<String>("name").unwrap(), "Rose");
+        assert_eq!(rose.get::<i32>("age").unwrap(), 18);
+        let hobby: Table = rose.get("hobby").unwrap();
+        assert_eq!(hobby.len().unwrap(), 2);
+        assert_eq!(hobby.get::<String>(1).unwrap(), "computer game");
+        assert_eq!(hobby.get::<String>(2).unwrap(), "gardening");
+    }
 
     #[test]
     fn test_string_split() {
