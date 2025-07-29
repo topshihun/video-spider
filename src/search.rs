@@ -4,7 +4,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use threadpool::ThreadPool;
-use super::config_lua::series::Series;
+use super::series::Series;
 use super::luafiles::LuaFile;
 use super::error::{ Result, Error::LuaFailed };
 use super::config_lua::run::lua_run;

@@ -1,7 +1,7 @@
 use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
-use super::series::{ Series, Episode };
+use super::super::series::{ Series, Episode };
 use super::extension::lua_extension;
 
 pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {

@@ -1,5 +1,5 @@
 use std::process::Command;
-use super::config_lua::series::Episode;
+use super::series::Episode;
 use super::error::{ Result, Error::PlayFailed };
 
 pub fn play(episode: &Episode) -> Result<()> {
