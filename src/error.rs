@@ -1,8 +1,8 @@
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Error {
     PlayFailed(String),
-    Failed,
+    LuaFailed(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

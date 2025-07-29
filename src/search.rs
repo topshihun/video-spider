@@ -1,3 +1,4 @@
+use mlua::prelude::*;
 use std::sync::mpsc::Sender;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -5,12 +6,12 @@ use std::sync::Arc;
 use threadpool::ThreadPool;
 use super::config_lua::series::Series;
 use super::luafiles::LuaFile;
-use super::error::{ Result, Error };
+use super::error::{ Result, Error::LuaFailed };
 use super::config_lua::run::lua_run;
 
 const THREAD_NUM: usize = 10;
 
-#[derive(PartialEq)]
+#[derive()]
 pub enum SearchMessage {
     Continue(LuaFile, Result<Vec<Series>>),
     Finished,
@@ -28,14 +29,18 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
             if channel_valid.load(Ordering::SeqCst) == false {
                 return;
             }
-            if let Ok(series_list) = lua_run(&lua_file.path, &keyword) {
-                if sender.send(SearchMessage::Continue(lua_file, Ok(series_list))).is_err() {
-                    channel_valid.store(false, Ordering::SeqCst);
-                }
-            } else {
-                if sender.send(SearchMessage::Continue(lua_file, Err(Error::Failed))).is_err() {
-                    channel_valid.store(false, Ordering::SeqCst);
-                }
+            let res: LuaResult<Vec<Series>> = lua_run(&lua_file.path, &keyword);
+            match res {
+                Ok(series_list) => {
+                    if sender.send(SearchMessage::Continue(lua_file, Ok(series_list))).is_err() {
+                        channel_valid.store(false, Ordering::SeqCst);
+                    }
+                },
+                Err(err) => {
+                    if sender.send(SearchMessage::Continue(lua_file, Err(LuaFailed(err.to_string())))).is_err() {
+                        channel_valid.store(false, Ordering::SeqCst);
+                    }
+                },
             }
         });
     }
