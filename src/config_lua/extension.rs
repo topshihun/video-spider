@@ -130,13 +130,7 @@ mod tests {
     fn test_lua_extension() {
         let lua = Lua::new();
         lua_extension(&lua).unwrap();
-        lua.load(r#"
-            http_get_res = utils.http_get("https://bing.com")
-            json_parse_res = utils.json_parse('{"test": "test"}')
-            string_split_res = utils.string_split("test=test=test", "=")
-            url_encode = utils.url_encode("1=1&2=2")
-            url_decode = utils.url_decode("1%3D1%262%3D2")
-            "#)
+        lua.load(Path::new("./tests/config_lua/extension/test_lua_extension.lua"))
             .exec()
             .unwrap();
     }
@@ -172,9 +166,7 @@ mod tests {
         lua.globals()
             .set("string_split", lua.create_function(string_split).unwrap())
             .unwrap();
-        lua.load(r#"
-            res = string_split("name:myname:yourname", ":")
-            "#)
+        lua.load(Path::new("./tests/config_lua/extension/test_string_split.lua"))
             .exec()
             .unwrap();
         let res: Table = lua.globals().get("res").unwrap();
@@ -190,9 +182,7 @@ mod tests {
         lua.globals()
             .set("url_encode", lua.create_function(url_encode).unwrap())
             .unwrap();
-        lua.load(r#"
-            res = url_encode("ac=b&b=ac")
-            "#)
+        lua.load(Path::new("./tests/config_lua/extension/test_url_encode.lua"))
             .exec()
             .unwrap();
         let res: String = lua.globals().get("res").unwrap();
@@ -205,9 +195,7 @@ mod tests {
         lua.globals()
             .set("url_decode", lua.create_function(url_decode).unwrap())
             .unwrap();
-        lua.load(r#"
-            res = url_decode("ac%3Db%26b%3Dac")
-            "#)
+        lua.load(Path::new("./tests/config_lua/extension/test_url_decode.lua"))
             .exec()
             .unwrap();
         let res: String = lua.globals().get("res").unwrap();

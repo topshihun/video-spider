@@ -1,0 +1,5 @@
+http_get_res = utils.http_get("https://bing.com")
+json_parse_res = utils.json_parse('{"test": "test"}')
+string_split_res = utils.string_split("test=test=test", "=")
+url_encode = utils.url_encode("1=1&2=2")
+url_decode = utils.url_decode("1%3D1%262%3D2")
