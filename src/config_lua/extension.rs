@@ -1,10 +1,10 @@
-use mlua::{ Lua, Table, Result, Value::* };
+use mlua::prelude::*;
 use urlencoding::{ encode, decode };
 use serde_json::Value;
 use std::string::String;
 
 // Lua function
-fn http_get(_: &Lua, url: String) -> Result<String> {
+fn http_get(_: &Lua, url: String) -> LuaResult<String> {
     let body = reqwest::blocking::get(url)
         // TODO: result
         .unwrap()
@@ -13,27 +13,27 @@ fn http_get(_: &Lua, url: String) -> Result<String> {
     Ok(body)
 }
 
-fn json_to_table(lua: &Lua, table: &Table, key: Option<&str>, value: &Value) -> Result<()> {
+fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) -> LuaResult<()> {
     match value {
         Value::Null => {
             if let Some(k) = key {
-                table.set(k, Nil)?;
+                table.set(k, LuaNil)?;
             } else {
-                table.push(Nil)?;
+                table.push(LuaNil)?;
             }
         },
         Value::Bool(b) => {
             if let Some(k) = key {
-                table.set(k, Boolean(*b))?;
+                table.set(k, *b)?;
             } else {
-                table.push(Boolean(*b))?;
+                table.push(*b)?;
             }
         },
         Value::Number(n) => {
             if let Some(k) = key {
                 table.set(k, n.as_f64().unwrap())?;
             } else {
-                table.push(Number(n.as_f64().unwrap()))?;
+                table.push(n.as_f64().unwrap())?;
             }
         },
         Value::String(s) => {
@@ -72,7 +72,7 @@ fn json_to_table(lua: &Lua, table: &Table, key: Option<&str>, value: &Value) -> 
 }
 
 // Lua function
-fn json_parse(lua: &Lua, data: String) -> Result<Table> {
+fn json_parse(lua: &Lua, data: String) -> LuaResult<LuaTable> {
     let table = lua.create_table()?;
     let json: Value = serde_json::from_str(&data).expect("json parse failed");
     json_to_table(lua, &table, Option::None, &json)?;
@@ -80,7 +80,7 @@ fn json_parse(lua: &Lua, data: String) -> Result<Table> {
 }
 
 // Lua function
-fn string_split(lua: &Lua, (data, split_str): (String, String)) -> Result<Table> {
+fn string_split(lua: &Lua, (data, split_str): (String, String)) -> LuaResult<LuaTable> {
     let split: Vec<&str> = data.split(&split_str).collect();
     let table = lua.create_table()?;
     for v in split {
@@ -90,16 +90,16 @@ fn string_split(lua: &Lua, (data, split_str): (String, String)) -> Result<Table>
 }
 
 // Lua function
-fn url_encode(_: &Lua, data: String) -> Result<String> {
+fn url_encode(_: &Lua, data: String) -> LuaResult<String> {
     Ok(encode(&data).to_string())
 }
 
 // Lua function
-fn url_decode(_: &Lua, data: String) -> Result<String> {
+fn url_decode(_: &Lua, data: String) -> LuaResult<String> {
     Ok(decode(&data).expect("data is not utf-8").to_string())
 }
 
-pub fn lua_extension(lua: &Lua) -> Result<()> {
+pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
     let globals = lua.globals();
     let utils = lua.create_table()?;
 

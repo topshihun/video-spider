@@ -4,21 +4,21 @@ use url::Url;
 use super::series::{ Series, Episode };
 use super::extension::lua_extension;
 
-pub fn lua_run(path: &Path, keyword: &str) -> Result<Vec<Series>, mlua::Error> {
+pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
     let lua = Lua::new();
     // add some functions for Lua
     lua_extension(&lua)?;
     lua.load(path).exec()?;
-    let main: mlua::Function = lua.globals().get("main")?;
-    let series_list: mlua::Table = main.call(keyword)?;
+    let main: LuaFunction = lua.globals().get("main")?;
+    let series_list: LuaTable = main.call(keyword)?;
     let mut series_list_ret: Vec<Series> = Vec::new();
     for i in 1..=series_list.len()? {
-        let table: mlua::Table = series_list.get(i)?;
+        let table: LuaTable = series_list.get(i)?;
         let name: String = table.get("name")?;
         let image: String = table.get("image")?;
         let image: Url = Url::parse(&image).unwrap();
         let description: String = table.get("description")?;
-        let lua_episodes: mlua::Table = table.get("episodes")?;
+        let lua_episodes: LuaTable = table.get("episodes")?;
         let mut episodes: Vec<Episode> = Vec::new();
         for pair in lua_episodes.pairs() {
             let (key, value): (String, String) = pair?;
