@@ -55,16 +55,14 @@ fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) 
             }
         },
         Value::Object(o) => {
+            let map = lua.create_table()?;
+            for (k, v) in o {
+                json_to_table(lua, &map, Some(k), v)?;
+            }
             if let Some(k) = key {
-                let map = lua.create_table()?;
-                for (k, v) in o {
-                    json_to_table(lua, &map, Some(k), v)?;
-                }
                 table.set(k, map)?;
             } else {
-                for (k, v) in o {
-                    json_to_table(lua, table, Some(k), v)?;
-                }
+                table.push(map)?;
             }
         },
     }
@@ -76,7 +74,7 @@ fn json_parse(lua: &Lua, data: String) -> LuaResult<LuaTable> {
     let table = lua.create_table()?;
     let json: Value = serde_json::from_str(&data).expect("json parse failed");
     json_to_table(lua, &table, Option::None, &json)?;
-    Ok(table)
+    Ok(table.get::<LuaTable>(1)?)
 }
 
 // Lua function
@@ -116,6 +114,8 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::{
         json_parse,
         string_split,
@@ -147,9 +147,7 @@ mod tests {
         lua.globals()
             .set("json_parse", lua.create_function(json_parse).unwrap())
             .unwrap();
-        lua.load(r#"
-            rose = json_parse('{"name": "Rose", "age": 18, "hobby": ["computer game", "gardening"]}')
-            "#)
+        lua.load(Path::new("./tests/config_lua/extension/test_json_parse.lua"))
             .exec()
             .unwrap();
 
@@ -160,6 +158,12 @@ mod tests {
         assert_eq!(hobby.len().unwrap(), 2);
         assert_eq!(hobby.get::<String>(1).unwrap(), "computer game");
         assert_eq!(hobby.get::<String>(2).unwrap(), "gardening");
+        let classes: Table = rose.get("classes").unwrap();
+        assert_eq!(classes.len().unwrap(), 2);
+        assert_eq!(classes.get::<Table>(1).unwrap().get::<String>("name").unwrap(), "math");
+        assert_eq!(classes.get::<Table>(1).unwrap().get::<String>("teacher").unwrap(), "Math");
+        assert_eq!(classes.get::<Table>(2).unwrap().get::<String>("name").unwrap(), "english");
+        assert_eq!(classes.get::<Table>(2).unwrap().get::<String>("teacher").unwrap(), "English");
     }
 
     #[test]
