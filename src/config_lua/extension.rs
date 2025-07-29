@@ -31,9 +31,9 @@ fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) 
         },
         Value::Number(n) => {
             if let Some(k) = key {
-                table.set(k, n.as_f64().unwrap())?;
+                table.set(k, n.to_string())?;
             } else {
-                table.push(n.as_f64().unwrap())?;
+                table.push(n.to_string())?;
             }
         },
         Value::String(s) => {
