@@ -1,8 +1,8 @@
 [workspace]
-members = ["videospidercli"]
+members = ["videospidercli", "videospidergui"]
 
 [package]
-name = "libvideospider"
+name = "videospider"
 version = "0.0.1"
 edition = "2024"
 

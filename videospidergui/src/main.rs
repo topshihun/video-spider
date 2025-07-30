@@ -1,0 +1,9 @@
+mod message;
+mod main_win;
+mod left_column;
+use main_win::MainWin;
+
+
+fn main() -> iced::Result {
+    iced::application(MainWin::title, MainWin::update, MainWin::view).run()
+}

@@ -1,8 +1,8 @@
 use clap::Parser;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
-use libvideospider::search::{ search, SearchMessage };
-use libvideospider::luafiles::LuaFile;
+use videospider::search::{ search, SearchMessage };
+use videospider::luafiles::LuaFile;
 
 #[derive(Parser)]
 struct Args {
