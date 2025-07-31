@@ -41,7 +41,7 @@ impl MainWin {
                 .view()
                 .map(|msg| MainWinMessage::PageWidgetMessage(msg)),
         ]
-            .spacing(10)
+            .spacing(5)
             .into()
     }
 }
