@@ -1,5 +1,5 @@
 use iced::Element;
-use iced::widget::text_input;
+use iced::widget::{button, row, text_input};
 
 pub struct SearchPage {
     content: String,
@@ -8,6 +8,7 @@ pub struct SearchPage {
 #[derive(Debug, Clone)]
 pub enum SearchPageMessage {
     SearchInputChanged(String),
+    SearchButtonClicked,
 }
 
 impl SearchPage {
@@ -22,12 +23,18 @@ impl SearchPage {
             SearchPageMessage::SearchInputChanged(str) => {
                 self.content = str;
             },
+            SearchPageMessage::SearchButtonClicked => {
+            },
         }
     }
 
     pub fn view(&self) -> Element<SearchPageMessage> {
-        text_input("search input", &self.content)
-            .on_input(SearchPageMessage::SearchInputChanged)
+        row![
+            text_input("search input", &self.content)
+                .on_input(SearchPageMessage::SearchInputChanged),
+            button("search")
+                .on_press(SearchPageMessage::SearchButtonClicked),
+        ]
             .into()
     }
 }
