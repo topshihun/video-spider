@@ -1,43 +1,34 @@
 use iced::Element;
-use iced::widget::button;
+use iced::widget::{button, column};
 use videospider::series::Series;
 use std::sync::Arc;
-
-#[derive(Debug, Clone)]
-pub enum LeftColumnState {
-    Search,
-}
+use super::state::{State, StateChangedMessage};
 
 pub struct LeftColumn {
-    state: LeftColumnState,
+    state: State,
     items: Option<Arc<Vec<Series>>>
-}
-
-#[derive(Debug, Clone)]
-pub enum LeftColumnMessage {
-    SearchClicked,
 }
 
 impl LeftColumn {
     pub fn new() -> Self {
         Self {
-            state: LeftColumnState::Search,
+            state: State::default(),
             items: Option::None,
         }
     }
 
-    pub fn update(&mut self, message: LeftColumnMessage) {
-        match message {
-            LeftColumnMessage::SearchClicked => self.state = LeftColumnState::Search,
-        }
+    pub fn update(&mut self, message: StateChangedMessage) {
+        self.state = message;
     }
 
-    pub fn view(&self) -> Element<LeftColumnMessage> {
-        let search_buttom = button("search").on_press(LeftColumnMessage::SearchClicked);
-        search_buttom.into()
-    }
-
-    pub fn get_state(&self) -> LeftColumnState {
-        self.state.clone()
+    pub fn view(&self) -> Element<StateChangedMessage> {
+        let home_button = button("home")
+            .on_press(StateChangedMessage::Home);
+        let search_button = button("search")
+            .on_press(StateChangedMessage::Search);
+        column![
+            home_button,
+            search_button,
+        ].into()
     }
 }

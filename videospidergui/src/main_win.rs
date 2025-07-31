@@ -1,7 +1,8 @@
 use iced::Element;
 use iced::widget::row;
-use super::left_column::{LeftColumn, LeftColumnMessage};
+use super::left_column::LeftColumn;
 use super::page::{PageWidget, PageWidgetMessage};
+use super::state::StateChangedMessage;
 
 pub struct MainWin {
     left_column: LeftColumn,
@@ -10,7 +11,7 @@ pub struct MainWin {
 
 #[derive(Debug, Clone)]
 pub enum MainWinMessage {
-    LeftColumnMessage(LeftColumnMessage),
+    StateChangedMessage(StateChangedMessage),
     PageWidgetMessage(PageWidgetMessage),
 }
 
@@ -21,8 +22,9 @@ impl MainWin {
 
     pub fn update(&mut self, message: MainWinMessage) {
         match message {
-            MainWinMessage::LeftColumnMessage(msg) => {
-                self.left_column.update(msg);
+            MainWinMessage::StateChangedMessage(msg) => {
+                self.left_column.update(msg.clone());
+                self.page_widget.update(PageWidgetMessage::StateChanged(msg));
             },
             MainWinMessage::PageWidgetMessage(msg) => {
                 self.page_widget.update(msg);
@@ -34,11 +36,13 @@ impl MainWin {
         row![
             self.left_column
                 .view()
-                .map(|msg| MainWinMessage::LeftColumnMessage(msg)),
+                .map(|msg| MainWinMessage::StateChangedMessage(msg)),
             self.page_widget
                 .view()
                 .map(|msg| MainWinMessage::PageWidgetMessage(msg)),
-        ].into()
+        ]
+            .spacing(10)
+            .into()
     }
 }
 
