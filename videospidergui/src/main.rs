@@ -1,5 +1,4 @@
 mod page;
-mod message;
 mod main_win;
 mod left_column;
 use main_win::MainWin;

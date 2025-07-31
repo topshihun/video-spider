@@ -1,6 +1,5 @@
 use iced::Element;
 use iced::widget::button;
-use super::message::Message;
 use videospider::series::Series;
 use std::sync::Arc;
 
@@ -14,6 +13,11 @@ pub struct LeftColumn {
     items: Option<Arc<Vec<Series>>>
 }
 
+#[derive(Debug, Clone)]
+pub enum LeftColumnMessage {
+    SearchClicked,
+}
+
 impl LeftColumn {
     pub fn new() -> Self {
         Self {
@@ -22,14 +26,14 @@ impl LeftColumn {
         }
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: LeftColumnMessage) {
         match message {
-            Message::SearchClicked => self.state = LeftColumnState::Search,
+            LeftColumnMessage::SearchClicked => self.state = LeftColumnState::Search,
         }
     }
 
-    pub fn view(&self) -> Element<Message> {
-        let search_buttom = button("search").on_press(Message::SearchClicked);
+    pub fn view(&self) -> Element<LeftColumnMessage> {
+        let search_buttom = button("search").on_press(LeftColumnMessage::SearchClicked);
         search_buttom.into()
     }
 

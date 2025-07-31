@@ -1,2 +1,4 @@
 mod page_widget;
-mod search;
+mod search_page;
+
+pub use page_widget::{PageWidget, PageWidgetMessage};
