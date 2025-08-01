@@ -1,3 +1,6 @@
+mod series_list_widget;
+mod series_widget;
+
 use iced::Element;
 use iced::widget::{button, row, text_input};
 
@@ -24,6 +27,7 @@ impl SearchPage {
                 self.content = str;
             },
             SearchPageMessage::SearchButtonClicked => {
+                todo!("search action")
             },
         }
     }
