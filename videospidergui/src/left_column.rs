@@ -26,11 +26,23 @@ impl LeftColumn {
     pub fn view(&self) -> Element<StateChangedMessage> {
         let home_button = button("home")
             .width(Fill)
-            .style(button_style)
+            .style(
+                if self.state == State::Home {
+                    button_slected_style
+                } else
+                {
+                    button_style
+                })
             .on_press(StateChangedMessage::Home);
         let search_button = button("search")
             .width(Fill)
-            .style(button_style)
+            .style(
+                if self.state == State::Search {
+                    button_slected_style
+                } else
+                {
+                    button_style
+                })
             .on_press(StateChangedMessage::Search);
         let container = container(column![
             home_button,
@@ -46,7 +58,33 @@ impl LeftColumn {
 
 fn button_style(_: &Theme, status: button::Status) -> button::Style {
     button::Style {
-        background: Some(Background::Color(Color::from_rgb8(105, 115, 255))),
+        background:
+            match status {
+                button::Status::Hovered => {
+                    Some(Background::Color(Color::from_rgb8(75, 155, 255)))
+                },
+                _ => {
+                    Some(Background::Color(Color::from_rgb8(75, 75, 255)))
+                }
+            },
+        text_color: Color::WHITE,
+        border: Border {
+            color: Color::BLACK,
+            width: 0.0,
+            radius: Radius {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 0.0,
+                bottom_left: 0.0,
+            },
+        },
+        shadow: Shadow::default(),
+    }
+}
+
+fn button_slected_style(_: &Theme, _: button::Status) -> button::Style {
+    button::Style {
+        background: Some(Background::Color(Color::from_rgb8(0, 0, 255))),
         text_color: Color::WHITE,
         border: Border {
             color: Color::BLACK,
