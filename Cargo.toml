@@ -5,6 +5,7 @@ members = ["videospidercli", "videospidergui"]
 name = "videospider"
 version = "0.0.1"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 url = { version = "2.5" }
