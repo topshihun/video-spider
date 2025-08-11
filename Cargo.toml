@@ -1,5 +1,5 @@
 [workspace]
-members = ["videospidercli", "videospidergui"]
+members = ["videospidercli", "videospidertui", "videospidergui"]
 
 [package]
 name = "videospider"

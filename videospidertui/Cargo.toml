@@ -1,0 +1,9 @@
+[package]
+name = "videospidertui"
+version = "0.0.1"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+ratatui = "0.29"
+crossterm = "0.28"
