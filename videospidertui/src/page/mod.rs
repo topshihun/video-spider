@@ -6,7 +6,7 @@ use ratatui::{layout::Rect, Frame};
 
 use home_page::HomePage;
 use search_page::SearchPage;
-use crate::{state::{FocusState, State, UiState}, utils::style_block};
+use crate::{state::{FocusState, PageState, State, TabState}, utils::style_block};
 
 pub struct Page {
     home_page: HomePage,
@@ -21,24 +21,31 @@ impl Page {
         }
     }
 
-    pub fn draw(&self, frame: &mut Frame, area: Rect, state: &State) {
-        let block = if let FocusState::Page = state.focus {
+    pub fn draw(&self, frame: &mut Frame, area: Rect, state: (&PageState, &FocusState)) {
+        let (page_state, focus_state) = state;
+
+        let block = if let FocusState::Page = focus_state {
             style_block("page", true)
         } else {
             style_block("page", false)
         };
 
-        match state.ui {
-            UiState::Home => self.home_page.draw(frame, block.inner(area), state),
-            UiState::Search => self.search_page.draw(frame, block.inner(area), state),
+        match page_state {
+            PageState::Tab(tab_state) => {
+                match tab_state {
+                    TabState::Home => self.home_page.draw(frame, block.inner(area), page_state),
+                    TabState::Search => self.search_page.draw(frame, block.inner(area), page_state),
+                }
+            },
+            _ => {},
         }
 
         frame.render_widget(block, area);
     }
 
-    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
+    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut FocusState) {
         match key_event.code {
-            KeyCode::Esc => state.focus.escape(),
+            KeyCode::Esc => state.escape(),
             _ => {},
         }
     }

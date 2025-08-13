@@ -1,48 +1,76 @@
-
 #[derive(Debug)]
 pub struct State {
-    pub ui: UiState,
-    pub focus: FocusState,
+    pub tab_state: TabState,
+    pub series_tab_state: SeriesTabState,
+    pub page_state: PageState,
+    pub focus_state: FocusState,
 }
 
 impl State {
     pub fn new() -> Self {
         Self {
-            ui: UiState::default(),
-            focus: FocusState::default(),
+            tab_state: TabState::default(),
+            series_tab_state: SeriesTabState::default(),
+            page_state: PageState::default(),
+            focus_state: FocusState::default(),
         }
     }
 }
 
-#[derive(Debug)]
-pub enum UiState {
+#[derive(Debug, Clone)]
+pub enum TabState {
     Home,
     Search,
 }
 
-impl UiState {
+impl TabState {
     pub fn next(&mut self) {
         match self {
-            UiState::Home =>
-                *self = UiState::Search,
-            UiState::Search =>
-                *self = UiState::Home,
+            TabState::Home =>
+                *self = TabState::Search,
+            TabState::Search =>
+                *self = TabState::Home,
         }
     }
 
     pub fn prev(&mut self) {
         match self {
-            UiState::Home =>
-                *self = UiState::Search,
-            UiState::Search =>
-                *self = UiState::Home,
+            TabState::Home =>
+                *self = TabState::Search,
+            TabState::Search =>
+                *self = TabState::Home,
         }
     }
 }
 
-impl Default for UiState {
+impl Default for TabState {
     fn default() -> Self {
-        Self::Search
+        TabState::Home
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SeriesTabState {
+    index: Option<u32>,
+}
+
+impl Default for SeriesTabState {
+    fn default() -> Self {
+        Self {
+            index: None,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum PageState {
+    Tab(TabState),
+    Series(SeriesTabState),
+}
+
+impl Default for PageState {
+    fn default() -> Self {
+        Self::Tab(TabState::default())
     }
 }
 

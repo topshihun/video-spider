@@ -1,6 +1,6 @@
 use ratatui::{layout::{Constraint, Layout, Rect}, widgets::{Block, Paragraph}, Frame};
 
-use crate::state::State;
+use crate::state::{PageState, State};
 
 pub struct SearchPage {
     search_input: String,
@@ -13,7 +13,7 @@ impl SearchPage {
         }
     }
 
-    pub fn draw(&self, frame: &mut Frame, area: Rect, _state: &State) {
+    pub fn draw(&self, frame: &mut Frame, area: Rect, _state: &PageState) {
         let chunks = Layout::vertical([
             Constraint::Length(3),
         ])

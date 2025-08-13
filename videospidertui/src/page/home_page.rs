@@ -1,6 +1,6 @@
 use ratatui::{layout::Rect, text::Text, Frame};
 
-use crate::state::State;
+use crate::state::{PageState, State};
 
 pub struct HomePage {}
 
@@ -10,7 +10,7 @@ impl HomePage {
         }
     }
 
-    pub fn draw(&self, frame: &mut Frame, area: Rect, _state: &State) {
+    pub fn draw(&self, frame: &mut Frame, area: Rect, _state: &PageState) {
         let text = Text::from("Home page is nothing");
         frame.render_widget(text, area);
     }
