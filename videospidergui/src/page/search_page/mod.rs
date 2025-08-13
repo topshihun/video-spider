@@ -25,10 +25,10 @@ impl SearchPage {
         match message {
             SearchPageMessage::SearchInputChanged(str) => {
                 self.content = str;
-            },
+            }
             SearchPageMessage::SearchButtonClicked => {
                 todo!("search action")
-            },
+            }
         }
     }
 
@@ -36,9 +36,8 @@ impl SearchPage {
         row![
             text_input("search input", &self.content)
                 .on_input(SearchPageMessage::SearchInputChanged),
-            button("search")
-                .on_press(SearchPageMessage::SearchButtonClicked),
+            button("search").on_press(SearchPageMessage::SearchButtonClicked),
         ]
-            .into()
+        .into()
     }
 }

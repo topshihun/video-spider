@@ -1,14 +1,16 @@
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{layout::Rect, Frame};
+use ratatui::{Frame, layout::Rect};
 
-use crate::{state::{FocusState, SeriesTabState, State}, utils::style_block};
+use crate::{
+    state::{FocusState, SeriesTabState, State},
+    utils::style_block,
+};
 
 pub struct SeriesTab {}
 
 impl SeriesTab {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 
     pub fn draw(&self, frame: &mut Frame, area: Rect, state: (&SeriesTabState, &FocusState)) {
@@ -28,7 +30,7 @@ impl SeriesTab {
             KeyCode::Enter => state.enter(),
             KeyCode::Char('h') => state.prev(),
             KeyCode::Char('l') => state.next(),
-            _ => {},
+            _ => {}
         }
     }
 }

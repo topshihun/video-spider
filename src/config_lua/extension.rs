@@ -1,7 +1,7 @@
 use mlua::prelude::*;
-use urlencoding::{ encode, decode };
 use serde_json::Value;
 use std::string::String;
+use urlencoding::{decode, encode};
 
 // Lua function
 fn http_get(_: &Lua, url: String) -> LuaResult<String> {
@@ -21,28 +21,28 @@ fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) 
             } else {
                 table.push(LuaNil)?;
             }
-        },
+        }
         Value::Bool(b) => {
             if let Some(k) = key {
                 table.set(k, *b)?;
             } else {
                 table.push(*b)?;
             }
-        },
+        }
         Value::Number(n) => {
             if let Some(k) = key {
                 table.set(k, n.to_string())?;
             } else {
                 table.push(n.to_string())?;
             }
-        },
+        }
         Value::String(s) => {
             if let Some(k) = key {
                 table.set(k, s.clone())?;
             } else {
                 table.push(s.clone())?;
             }
-        },
+        }
         Value::Array(a) => {
             let arr = lua.create_table()?;
             for v in a {
@@ -53,7 +53,7 @@ fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) 
             } else {
                 table.push(arr)?;
             }
-        },
+        }
         Value::Object(o) => {
             let map = lua.create_table()?;
             for (k, v) in o {
@@ -64,7 +64,7 @@ fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) 
             } else {
                 table.push(map)?;
             }
-        },
+        }
     }
     Ok(())
 }
@@ -116,13 +116,7 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
 mod tests {
     use std::path::Path;
 
-    use super::{
-        json_parse,
-        string_split,
-        url_encode,
-        url_decode,
-        lua_extension,
-    };
+    use super::{json_parse, lua_extension, string_split, url_decode, url_encode};
     use mlua::{Lua, Table};
 
     #[test]
@@ -130,9 +124,11 @@ mod tests {
     fn test_lua_extension() {
         let lua = Lua::new();
         lua_extension(&lua).unwrap();
-        lua.load(Path::new("./tests/config_lua/extension/test_lua_extension.lua"))
-            .exec()
-            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_lua_extension.lua",
+        ))
+        .exec()
+        .unwrap();
     }
 
     #[test]
@@ -141,9 +137,11 @@ mod tests {
         lua.globals()
             .set("json_parse", lua.create_function(json_parse).unwrap())
             .unwrap();
-        lua.load(Path::new("./tests/config_lua/extension/test_json_parse.lua"))
-            .exec()
-            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_json_parse.lua",
+        ))
+        .exec()
+        .unwrap();
 
         let rose: Table = lua.globals().get("rose").unwrap();
         assert_eq!(rose.get::<String>("name").unwrap(), "Rose");
@@ -154,10 +152,38 @@ mod tests {
         assert_eq!(hobby.get::<String>(2).unwrap(), "gardening");
         let classes: Table = rose.get("classes").unwrap();
         assert_eq!(classes.len().unwrap(), 2);
-        assert_eq!(classes.get::<Table>(1).unwrap().get::<String>("name").unwrap(), "math");
-        assert_eq!(classes.get::<Table>(1).unwrap().get::<String>("teacher").unwrap(), "Math");
-        assert_eq!(classes.get::<Table>(2).unwrap().get::<String>("name").unwrap(), "english");
-        assert_eq!(classes.get::<Table>(2).unwrap().get::<String>("teacher").unwrap(), "English");
+        assert_eq!(
+            classes
+                .get::<Table>(1)
+                .unwrap()
+                .get::<String>("name")
+                .unwrap(),
+            "math"
+        );
+        assert_eq!(
+            classes
+                .get::<Table>(1)
+                .unwrap()
+                .get::<String>("teacher")
+                .unwrap(),
+            "Math"
+        );
+        assert_eq!(
+            classes
+                .get::<Table>(2)
+                .unwrap()
+                .get::<String>("name")
+                .unwrap(),
+            "english"
+        );
+        assert_eq!(
+            classes
+                .get::<Table>(2)
+                .unwrap()
+                .get::<String>("teacher")
+                .unwrap(),
+            "English"
+        );
     }
 
     #[test]
@@ -166,9 +192,11 @@ mod tests {
         lua.globals()
             .set("string_split", lua.create_function(string_split).unwrap())
             .unwrap();
-        lua.load(Path::new("./tests/config_lua/extension/test_string_split.lua"))
-            .exec()
-            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_string_split.lua",
+        ))
+        .exec()
+        .unwrap();
         let res: Table = lua.globals().get("res").unwrap();
         assert_eq!(res.len().unwrap(), 3);
         assert_eq!(res.get::<String>(1).unwrap(), "name");
@@ -182,9 +210,11 @@ mod tests {
         lua.globals()
             .set("url_encode", lua.create_function(url_encode).unwrap())
             .unwrap();
-        lua.load(Path::new("./tests/config_lua/extension/test_url_encode.lua"))
-            .exec()
-            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_url_encode.lua",
+        ))
+        .exec()
+        .unwrap();
         let res: String = lua.globals().get("res").unwrap();
         assert_eq!(res, "ac%3Db%26b%3Dac");
     }
@@ -195,9 +225,11 @@ mod tests {
         lua.globals()
             .set("url_decode", lua.create_function(url_decode).unwrap())
             .unwrap();
-        lua.load(Path::new("./tests/config_lua/extension/test_url_decode.lua"))
-            .exec()
-            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_url_decode.lua",
+        ))
+        .exec()
+        .unwrap();
         let res: String = lua.globals().get("res").unwrap();
         assert_eq!(res, "ac=b&b=ac");
     }

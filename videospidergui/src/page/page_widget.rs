@@ -1,7 +1,7 @@
-use iced::Element;
-use super::search_page::{SearchPage, SearchPageMessage};
-use super::home_page::HomePage;
 use super::super::state::State;
+use super::home_page::HomePage;
+use super::search_page::{SearchPage, SearchPageMessage};
+use iced::Element;
 
 pub struct PageWidget {
     state: State,
@@ -29,28 +29,26 @@ impl PageWidget {
         match message {
             PageWidgetMessage::StateChanged(state) => {
                 self.state = state;
-            },
+            }
             PageWidgetMessage::HomePageMessage => {
                 // Nothing
-            },
+            }
             PageWidgetMessage::SearchPageMessage(message) => {
                 self.search_page.update(message);
-            },
+            }
         }
     }
 
     pub fn view(&self) -> Element<PageWidgetMessage> {
         let ret = match self.state {
-            State::Home => {
-                self.home_page
-                    .view()
-                    .map(|()| PageWidgetMessage::HomePageMessage)
-            },
-            State::Search => {
-                self.search_page
-                    .view()
-                    .map(|msg| PageWidgetMessage::SearchPageMessage(msg))
-            },
+            State::Home => self
+                .home_page
+                .view()
+                .map(|()| PageWidgetMessage::HomePageMessage),
+            State::Search => self
+                .search_page
+                .view()
+                .map(|msg| PageWidgetMessage::SearchPageMessage(msg)),
         };
         ret
     }

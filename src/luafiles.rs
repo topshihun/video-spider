@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use std::fs::read_dir;
 use dirs::config_dir;
+use std::fs::read_dir;
+use std::path::PathBuf;
 
 #[derive(Clone, PartialEq)]
 pub struct LuaFile {
@@ -16,13 +16,15 @@ pub fn get_lua_files() -> Vec<LuaFile> {
     for entry in read_dir(config_path).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.is_file() && let Some(ext) = path.extension()
-            && ext == "lua" {
-                lua_files.push(LuaFile {
-                    name: path.file_name().unwrap().to_string_lossy().into_owned(),
-                    path,
-                });
-            }
+        if path.is_file()
+            && let Some(ext) = path.extension()
+            && ext == "lua"
+        {
+            lua_files.push(LuaFile {
+                name: path.file_name().unwrap().to_string_lossy().into_owned(),
+                path,
+            });
+        }
     }
     lua_files
 }

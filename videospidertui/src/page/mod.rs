@@ -2,11 +2,14 @@ mod home_page;
 mod search_page;
 
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{layout::Rect, Frame};
+use ratatui::{Frame, layout::Rect};
 
+use crate::{
+    state::{FocusState, PageState, State, TabState},
+    utils::style_block,
+};
 use home_page::HomePage;
 use search_page::SearchPage;
-use crate::{state::{FocusState, PageState, State, TabState}, utils::style_block};
 
 pub struct Page {
     home_page: HomePage,
@@ -31,13 +34,11 @@ impl Page {
         };
 
         match page_state {
-            PageState::Tab(tab_state) => {
-                match tab_state {
-                    TabState::Home => self.home_page.draw(frame, block.inner(area), page_state),
-                    TabState::Search => self.search_page.draw(frame, block.inner(area), page_state),
-                }
+            PageState::Tab(tab_state) => match tab_state {
+                TabState::Home => self.home_page.draw(frame, block.inner(area), page_state),
+                TabState::Search => self.search_page.draw(frame, block.inner(area), page_state),
             },
-            _ => {},
+            _ => {}
         }
 
         frame.render_widget(block, area);
@@ -46,7 +47,7 @@ impl Page {
     pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut FocusState) {
         match key_event.code {
             KeyCode::Esc => state.escape(),
-            _ => {},
+            _ => {}
         }
     }
 }

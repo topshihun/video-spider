@@ -1,8 +1,8 @@
-use iced::Element;
-use iced::widget::row;
 use super::left_column::LeftColumn;
 use super::page::{PageWidget, PageWidgetMessage};
 use super::state::StateChangedMessage;
+use iced::Element;
+use iced::widget::row;
 
 pub struct MainWin {
     left_column: LeftColumn,
@@ -24,11 +24,12 @@ impl MainWin {
         match message {
             MainWinMessage::StateChangedMessage(msg) => {
                 self.left_column.update(msg.clone());
-                self.page_widget.update(PageWidgetMessage::StateChanged(msg));
-            },
+                self.page_widget
+                    .update(PageWidgetMessage::StateChanged(msg));
+            }
             MainWinMessage::PageWidgetMessage(msg) => {
                 self.page_widget.update(msg);
-            },
+            }
         }
     }
 
@@ -41,14 +42,14 @@ impl MainWin {
                 .view()
                 .map(|msg| MainWinMessage::PageWidgetMessage(msg)),
         ]
-            .spacing(5)
-            .into()
+        .spacing(5)
+        .into()
     }
 }
 
 impl Default for MainWin {
     fn default() -> Self {
-        MainWin { 
+        MainWin {
             left_column: LeftColumn::new(),
             page_widget: PageWidget::new(),
         }

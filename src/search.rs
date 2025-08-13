@@ -1,13 +1,13 @@
+use super::config_lua::run::lua_run;
+use super::error::{Error::LuaFailed, Result};
+use super::luafiles::LuaFile;
+use super::series::Series;
 use mlua::prelude::*;
-use std::sync::mpsc::Sender;
+use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
-use std::sync::Arc;
+use std::sync::mpsc::Sender;
 use threadpool::ThreadPool;
-use super::series::Series;
-use super::luafiles::LuaFile;
-use super::error::{ Result, Error::LuaFailed };
-use super::config_lua::run::lua_run;
 
 const THREAD_NUM: usize = 10;
 
@@ -32,15 +32,24 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
             let res: LuaResult<Vec<Series>> = lua_run(&lua_file.path, &keyword);
             match res {
                 Ok(series_list) => {
-                    if sender.send(SearchMessage::Continue(lua_file, Ok(series_list))).is_err() {
+                    if sender
+                        .send(SearchMessage::Continue(lua_file, Ok(series_list)))
+                        .is_err()
+                    {
                         channel_valid.store(false, Ordering::SeqCst);
                     }
-                },
+                }
                 Err(err) => {
-                    if sender.send(SearchMessage::Continue(lua_file, Err(LuaFailed(err.to_string())))).is_err() {
+                    if sender
+                        .send(SearchMessage::Continue(
+                            lua_file,
+                            Err(LuaFailed(err.to_string())),
+                        ))
+                        .is_err()
+                    {
                         channel_valid.store(false, Ordering::SeqCst);
                     }
-                },
+                }
             }
         });
     }

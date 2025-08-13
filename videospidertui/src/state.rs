@@ -26,19 +26,15 @@ pub enum TabState {
 impl TabState {
     pub fn next(&mut self) {
         match self {
-            TabState::Home =>
-                *self = TabState::Search,
-            TabState::Search =>
-                *self = TabState::Home,
+            TabState::Home => *self = TabState::Search,
+            TabState::Search => *self = TabState::Home,
         }
     }
 
     pub fn prev(&mut self) {
         match self {
-            TabState::Home =>
-                *self = TabState::Search,
-            TabState::Search =>
-                *self = TabState::Home,
+            TabState::Home => *self = TabState::Search,
+            TabState::Search => *self = TabState::Home,
         }
     }
 }
@@ -56,9 +52,7 @@ pub struct SeriesTabState {
 
 impl Default for SeriesTabState {
     fn default() -> Self {
-        Self {
-            index: None,
-        }
+        Self { index: None }
     }
 }
 
@@ -86,7 +80,7 @@ impl FocusState {
         match self {
             FocusState::Tab => *self = FocusState::SeriesTab,
             FocusState::SeriesTab => *self = FocusState::Tab,
-            _ => {},
+            _ => {}
         }
     }
 
@@ -94,7 +88,7 @@ impl FocusState {
         match self {
             FocusState::Tab => *self = FocusState::SeriesTab,
             FocusState::SeriesTab => *self = FocusState::Tab,
-            _ => {},
+            _ => {}
         }
     }
 
@@ -102,14 +96,14 @@ impl FocusState {
         match self {
             FocusState::Tab => *self = FocusState::Page,
             FocusState::SeriesTab => *self = FocusState::Page,
-            _ => {},
+            _ => {}
         }
     }
 
     pub fn escape(&mut self) {
         match self {
             FocusState::Page => *self = FocusState::Tab,
-            _ => {},
+            _ => {}
         }
     }
 }

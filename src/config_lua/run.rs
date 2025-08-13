@@ -1,8 +1,8 @@
+use super::super::series::{Episode, Series};
+use super::extension::lua_extension;
 use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
-use super::super::series::{ Series, Episode };
-use super::extension::lua_extension;
 
 pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
     let lua = Lua::new();
@@ -23,7 +23,10 @@ pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
         for pair in lua_episodes.pairs() {
             let (key, value): (String, String) = pair?;
             let value: Url = Url::parse(&value).unwrap();
-            episodes.push(Episode {name: key, addr: value});
+            episodes.push(Episode {
+                name: key,
+                addr: value,
+            });
         }
         let series = Series {
             name,
@@ -38,9 +41,9 @@ pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
     use super::super::run::lua_run;
-    
+    use std::path::Path;
+
     #[test]
     fn test_lua_run() {
         let path = Path::new("./tests/config_lua/simple_main.lua");
@@ -53,20 +56,78 @@ mod tests {
         assert_eq!(series_list.get(0).unwrap().description, "description");
         assert_eq!(series_list.get(1).unwrap().description, "description");
 
-        assert_eq!(series_list.get(0).unwrap().image.to_string(), "http://localhost/simple.png");
-        assert_eq!(series_list.get(1).unwrap().image.to_string(), "http://localhost/simple.png");
+        assert_eq!(
+            series_list.get(0).unwrap().image.to_string(),
+            "http://localhost/simple.png"
+        );
+        assert_eq!(
+            series_list.get(1).unwrap().image.to_string(),
+            "http://localhost/simple.png"
+        );
 
         assert_eq!(series_list.get(0).unwrap().episodes.len(), 2);
         assert_eq!(series_list.get(1).unwrap().episodes.len(), 2);
 
-        assert_eq!(series_list.get(0).unwrap().episodes.get(0).unwrap().name, "1");
-        assert_eq!(series_list.get(0).unwrap().episodes.get(0).unwrap().addr.to_string(), "http://localhost/simple1.mp4");
-        assert_eq!(series_list.get(1).unwrap().episodes.get(0).unwrap().name, "1");
-        assert_eq!(series_list.get(1).unwrap().episodes.get(0).unwrap().addr.to_string(), "http://localhost/simple1.mp4");
+        assert_eq!(
+            series_list.get(0).unwrap().episodes.get(0).unwrap().name,
+            "1"
+        );
+        assert_eq!(
+            series_list
+                .get(0)
+                .unwrap()
+                .episodes
+                .get(0)
+                .unwrap()
+                .addr
+                .to_string(),
+            "http://localhost/simple1.mp4"
+        );
+        assert_eq!(
+            series_list.get(1).unwrap().episodes.get(0).unwrap().name,
+            "1"
+        );
+        assert_eq!(
+            series_list
+                .get(1)
+                .unwrap()
+                .episodes
+                .get(0)
+                .unwrap()
+                .addr
+                .to_string(),
+            "http://localhost/simple1.mp4"
+        );
 
-        assert_eq!(series_list.get(0).unwrap().episodes.get(1).unwrap().name, "2");
-        assert_eq!(series_list.get(0).unwrap().episodes.get(1).unwrap().addr.to_string(), "http://localhost/simple2.mp4");
-        assert_eq!(series_list.get(1).unwrap().episodes.get(1).unwrap().name, "2");
-        assert_eq!(series_list.get(1).unwrap().episodes.get(1).unwrap().addr.to_string(), "http://localhost/simple2.mp4");
+        assert_eq!(
+            series_list.get(0).unwrap().episodes.get(1).unwrap().name,
+            "2"
+        );
+        assert_eq!(
+            series_list
+                .get(0)
+                .unwrap()
+                .episodes
+                .get(1)
+                .unwrap()
+                .addr
+                .to_string(),
+            "http://localhost/simple2.mp4"
+        );
+        assert_eq!(
+            series_list.get(1).unwrap().episodes.get(1).unwrap().name,
+            "2"
+        );
+        assert_eq!(
+            series_list
+                .get(1)
+                .unwrap()
+                .episodes
+                .get(1)
+                .unwrap()
+                .addr
+                .to_string(),
+            "http://localhost/simple2.mp4"
+        );
     }
 }

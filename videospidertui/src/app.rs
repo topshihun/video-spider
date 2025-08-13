@@ -1,7 +1,16 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
-use ratatui::{layout::{Constraint, Layout}, DefaultTerminal, Frame};
+use ratatui::{
+    DefaultTerminal, Frame,
+    layout::{Constraint, Layout},
+};
 
-use crate::{page::Page, series_tab::SeriesTab, state::{FocusState, PageState, State}, tab::Tab, utils::style_block};
+use crate::{
+    page::Page,
+    series_tab::SeriesTab,
+    state::{FocusState, PageState, State},
+    tab::Tab,
+    utils::style_block,
+};
 
 pub struct App {
     exit: bool,
@@ -28,11 +37,11 @@ impl App {
             match self.state.focus_state {
                 FocusState::Tab => {
                     self.state.page_state = PageState::Tab(self.state.tab_state.clone());
-                },
+                }
                 FocusState::SeriesTab => {
                     self.state.page_state = PageState::Series(self.state.series_tab_state.clone());
-                },
-                _ => {},
+                }
+                _ => {}
             }
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_events()?;
@@ -41,32 +50,37 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let chunks = Layout::horizontal([
-            Constraint::Length(30),
-            Constraint::Min(30),
-        ])
+        let chunks = Layout::horizontal([Constraint::Length(30), Constraint::Min(30)])
             .margin(1)
             .split(frame.area());
 
-        let tab_chunks = Layout::vertical([
-            Constraint::Length(4),
-            Constraint::Min(2),
-        ])
+        let tab_chunks = Layout::vertical([Constraint::Length(4), Constraint::Min(2)])
             .margin(0)
             .split(chunks[0]);
 
-        self.tab.draw(frame, tab_chunks[0], (&self.state.tab_state, &self.state.focus_state));
-        self.series_tab.draw(frame, tab_chunks[1], (&self.state.series_tab_state, &self.state.focus_state));
-        self.page.draw(frame, chunks[1], (&self.state.page_state, &self.state.focus_state));
+        self.tab.draw(
+            frame,
+            tab_chunks[0],
+            (&self.state.tab_state, &self.state.focus_state),
+        );
+        self.series_tab.draw(
+            frame,
+            tab_chunks[1],
+            (&self.state.series_tab_state, &self.state.focus_state),
+        );
+        self.page.draw(
+            frame,
+            chunks[1],
+            (&self.state.page_state, &self.state.focus_state),
+        );
     }
-
 
     fn handle_events(&mut self) -> std::io::Result<()> {
         match event::read()? {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 self.handle_key_event(key_event);
-            },
-            _ => {},
+            }
+            _ => {}
         };
         Ok(())
     }
@@ -76,15 +90,20 @@ impl App {
             return self.exit();
         }
         match self.state.focus_state {
-            FocusState::Tab =>
-                self.tab.handel_key_event(key_event, (&mut self.state.tab_state, &mut self.state.focus_state)),
-            FocusState::SeriesTab => self.series_tab.handel_key_event(key_event, &mut self.state.focus_state),
-            FocusState::Page => self.page.handel_key_event(key_event, &mut self.state.focus_state),
+            FocusState::Tab => self.tab.handel_key_event(
+                key_event,
+                (&mut self.state.tab_state, &mut self.state.focus_state),
+            ),
+            FocusState::SeriesTab => self
+                .series_tab
+                .handel_key_event(key_event, &mut self.state.focus_state),
+            FocusState::Page => self
+                .page
+                .handel_key_event(key_event, &mut self.state.focus_state),
         }
     }
 
     fn exit(&mut self) {
         self.exit = true;
     }
-
 }

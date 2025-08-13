@@ -1,12 +1,12 @@
 use iced::Element;
-use iced::widget::{container, column, text};
 use iced::Length::Fill;
+use iced::widget::{column, container, text};
 
 pub struct HomePage {}
 
 impl HomePage {
     pub fn new() -> Self {
-        HomePage {  }
+        HomePage {}
     }
 
     pub fn view(&self) -> Element<()> {

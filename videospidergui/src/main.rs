@@ -1,6 +1,6 @@
-mod page;
-mod main_win;
 mod left_column;
+mod main_win;
+mod page;
 mod state;
 
 use main_win::MainWin;

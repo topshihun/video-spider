@@ -1,15 +1,19 @@
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{layout::{Constraint, Layout, Rect}, Frame};
+use ratatui::{
+    Frame,
+    layout::{Constraint, Layout, Rect},
+};
 
-use crate::{state::{FocusState, State, TabState}, utils::{style_block, style_text}};
+use crate::{
+    state::{FocusState, State, TabState},
+    utils::{style_block, style_text},
+};
 
-pub struct Tab {
-}
+pub struct Tab {}
 
 impl Tab {
     pub fn new() -> Tab {
-        Self {
-        }
+        Self {}
     }
 
     pub fn draw(&self, frame: &mut Frame, area: Rect, state: (&TabState, &FocusState)) {
@@ -22,10 +26,7 @@ impl Tab {
         };
         frame.render_widget(block, area);
 
-        let chunks_main = Layout::vertical([
-            Constraint::Length(1),
-            Constraint::Length(1),
-        ])
+        let chunks_main = Layout::vertical([Constraint::Length(1), Constraint::Length(1)])
             .margin(1)
             .split(area);
 
@@ -44,7 +45,11 @@ impl Tab {
         frame.render_widget(search, chunks_main[1]);
     }
 
-    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: (&mut TabState, &mut FocusState)) {
+    pub fn handel_key_event(
+        &mut self,
+        key_event: KeyEvent,
+        state: (&mut TabState, &mut FocusState),
+    ) {
         let (tab_state, focus_state) = state;
 
         match key_event.code {
@@ -53,7 +58,7 @@ impl Tab {
             KeyCode::Char('k') => tab_state.prev(),
             KeyCode::Char('h') => focus_state.prev(),
             KeyCode::Char('l') => focus_state.next(),
-            _ => {},
+            _ => {}
         }
     }
 }
