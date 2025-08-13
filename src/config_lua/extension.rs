@@ -74,7 +74,7 @@ fn json_parse(lua: &Lua, data: String) -> LuaResult<LuaTable> {
     let table = lua.create_table()?;
     let json: Value = serde_json::from_str(&data).expect("json parse failed");
     json_to_table(lua, &table, Option::None, &json)?;
-    Ok(table.get::<LuaTable>(1)?)
+    table.get::<LuaTable>(1)
 }
 
 // Lua function

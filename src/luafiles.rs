@@ -16,14 +16,13 @@ pub fn get_lua_files() -> Vec<LuaFile> {
     for entry in read_dir(config_path).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.is_file() && let Some(ext) = path.extension() {
-            if ext == "lua" {
+        if path.is_file() && let Some(ext) = path.extension()
+            && ext == "lua" {
                 lua_files.push(LuaFile {
                     name: path.file_name().unwrap().to_string_lossy().into_owned(),
-                    path: path,
+                    path,
                 });
             }
-        }
     }
     lua_files
 }

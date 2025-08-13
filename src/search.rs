@@ -26,7 +26,7 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
         let lua_file = lua_file.clone();
         let channel_valid = Arc::clone(&channel_valid);
         threadpool.execute(move || {
-            if channel_valid.load(Ordering::SeqCst) == false {
+            if !channel_valid.load(Ordering::SeqCst) {
                 return;
             }
             let res: LuaResult<Vec<Series>> = lua_run(&lua_file.path, &keyword);
@@ -45,7 +45,7 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
         });
     }
     threadpool.join();
-    if channel_valid.load(Ordering::SeqCst) == true {
+    if channel_valid.load(Ordering::SeqCst) {
         sender.send(SearchMessage::Finished).unwrap();
     }
 }
