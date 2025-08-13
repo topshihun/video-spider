@@ -97,9 +97,10 @@ impl App {
             FocusState::SeriesTab => self
                 .series_tab
                 .handel_key_event(key_event, &mut self.state.focus_state),
-            FocusState::Page => self
-                .page
-                .handel_key_event(key_event, &mut self.state.focus_state),
+            FocusState::Page => self.page.handel_key_event(
+                key_event,
+                (&self.state.page_state, &mut self.state.focus_state),
+            ),
         }
     }
 

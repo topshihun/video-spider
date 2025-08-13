@@ -32,21 +32,26 @@ impl Page {
         } else {
             style_block("page", false)
         };
+        let block_inner = block.inner(area);
+        frame.render_widget(block, area);
 
         match page_state {
             PageState::Tab(tab_state) => match tab_state {
-                TabState::Home => self.home_page.draw(frame, block.inner(area), page_state),
-                TabState::Search => self.search_page.draw(frame, block.inner(area), page_state),
+                TabState::Home => self.home_page.draw(frame, block_inner, page_state),
+                TabState::Search => self.search_page.draw(frame, block_inner, page_state),
             },
             _ => {}
         }
-
-        frame.render_widget(block, area);
     }
 
-    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut FocusState) {
-        match key_event.code {
-            KeyCode::Esc => state.escape(),
+    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: (&PageState, &mut FocusState)) {
+        let (page_state, focus_state) = state;
+
+        match page_state {
+            PageState::Tab(tab_state) => match tab_state {
+                TabState::Home => self.home_page.handle_key_event(key_event, focus_state),
+                TabState::Search => self.search_page.handle_key_event(key_event, focus_state),
+            },
             _ => {}
         }
     }
