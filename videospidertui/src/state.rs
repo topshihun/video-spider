@@ -1,5 +1,6 @@
 #[derive(Debug)]
 pub struct State {
+    pub exit: bool,
     pub tab_state: TabState,
     pub series_tab_state: SeriesTabState,
     pub page_state: PageState,
@@ -9,6 +10,7 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         Self {
+            exit: false,
             tab_state: TabState::default(),
             series_tab_state: SeriesTabState::default(),
             page_state: PageState::default(),
