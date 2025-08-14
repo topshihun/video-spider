@@ -31,14 +31,11 @@ impl Input {
             .block(Block::bordered().title("input"));
         frame.render_widget(search_input, area);
 
-        match state {
-            InputMod::Editing => {
-                frame.set_cursor_position(Position::new(
-                    area.x + self.chracter_index as u16 + 1,
-                    area.y + 1,
-                ));
-            }
-            _ => {}
+        if let InputMod::Editing = state {
+            frame.set_cursor_position(Position::new(
+                area.x + self.chracter_index as u16 + 1,
+                area.y + 1,
+            ));
         }
     }
 

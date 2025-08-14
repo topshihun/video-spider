@@ -2,7 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{Frame, layout::Rect};
 
 use crate::{
-    state::{FocusState, SeriesTabState, State},
+    state::{FocusState, SeriesTabState},
     utils::style_block,
 };
 

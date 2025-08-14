@@ -1,11 +1,11 @@
 mod home_page;
 mod search_page;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
 
 use crate::{
-    state::{FocusState, PageState, State, TabState},
+    state::{FocusState, PageState, TabState},
     utils::style_block,
 };
 use home_page::HomePage;
@@ -35,24 +35,18 @@ impl Page {
         let block_inner = block.inner(area);
         frame.render_widget(block, area);
 
-        match page_state {
-            PageState::Tab(tab_state) => match tab_state {
-                TabState::Home => self.home_page.draw(frame, block_inner, page_state),
-                TabState::Search => self.search_page.draw(frame, block_inner, page_state),
-            },
-            _ => {}
-        }
+        if let PageState::Tab(tab_state) = page_state { match tab_state {
+            TabState::Home => self.home_page.draw(frame, block_inner, page_state),
+            TabState::Search => self.search_page.draw(frame, block_inner, page_state),
+        } }
     }
 
     pub fn handel_key_event(&mut self, key_event: KeyEvent, state: (&PageState, &mut FocusState)) {
         let (page_state, focus_state) = state;
 
-        match page_state {
-            PageState::Tab(tab_state) => match tab_state {
-                TabState::Home => self.home_page.handle_key_event(key_event, focus_state),
-                TabState::Search => self.search_page.handle_key_event(key_event, focus_state),
-            },
-            _ => {}
-        }
+        if let PageState::Tab(tab_state) = page_state { match tab_state {
+            TabState::Home => self.home_page.handle_key_event(key_event, focus_state),
+            TabState::Search => self.search_page.handle_key_event(key_event, focus_state),
+        } }
     }
 }

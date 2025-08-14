@@ -4,15 +4,13 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::prelude::*;
 use ratatui::{
     Frame,
-    layout::{Constraint, Layout, Position, Rect},
-    style::{Color, Style},
-    text::{Line, Masked, Span},
-    widgets::{Block, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState},
+    layout::{Constraint, Layout, Rect},
+    widgets::{Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState},
 };
 
 use crate::{
     page::search_page::input::Input,
-    state::{FocusState, PageState, State},
+    state::{FocusState, PageState},
     utils::style_block,
 };
 

@@ -5,7 +5,7 @@ use ratatui::{
 };
 
 use crate::{
-    state::{FocusState, State, TabState},
+    state::{FocusState, TabState},
     utils::{style_block, style_text},
 };
 
