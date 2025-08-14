@@ -5,7 +5,7 @@ use ratatui::{
 };
 
 pub fn style_block<'a>(title: impl Into<&'a str>, selected: bool) -> Block<'a> {
-    const NORMAL_STYLE: Style = Style::new();
+    const NORMAL_STYLE: Style = Style::new().fg(Color::White);
     const SELECTED_STYLE: Style = Style::new().fg(Color::Blue);
 
     Block::bordered()

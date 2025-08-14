@@ -4871,6 +4871,7 @@ version = "0.0.1"
 dependencies = [
  "crossterm",
  "ratatui",
+ "videospider",
 ]
 
 [[package]]
