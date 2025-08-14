@@ -1,16 +1,20 @@
 use mlua::prelude::*;
+use reqwest::blocking::Client;
 use serde_json::Value;
 use std::string::String;
 use urlencoding::{decode, encode};
 
 // Lua function
 fn http_get(_: &Lua, url: String) -> LuaResult<String> {
-    let body = reqwest::blocking::get(url)
-        // TODO: result
-        .unwrap()
-        .text()
+    let body = Client::new()
+        .get(url)
+        .header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
+        .send()
         .unwrap();
-    Ok(body)
+    if body.status().is_success() {
+        return Ok(body.text().unwrap());
+    }
+    Err(LuaError::RuntimeError(body.text().unwrap()))
 }
 
 fn json_to_table(lua: &Lua, table: &LuaTable, key: Option<&str>, value: &Value) -> LuaResult<()> {

@@ -47,17 +47,17 @@ mod tests {
     #[test]
     fn test_lua_run() {
         let path = Path::new("./tests/config_lua/simple_main.lua");
-        let series_list = lua_run(&path, "_mykey").unwrap();
+        let series_list = lua_run(path, "_mykey").unwrap();
         assert_eq!(series_list.len(), 2);
 
-        assert_eq!(series_list.get(0).unwrap().name, "video_name1_mykey");
+        assert_eq!(series_list.first().unwrap().name, "video_name1_mykey");
         assert_eq!(series_list.get(1).unwrap().name, "video_name2_mykey");
 
-        assert_eq!(series_list.get(0).unwrap().description, "description");
+        assert_eq!(series_list.first().unwrap().description, "description");
         assert_eq!(series_list.get(1).unwrap().description, "description");
 
         assert_eq!(
-            series_list.get(0).unwrap().image.to_string(),
+            series_list.first().unwrap().image.to_string(),
             "http://localhost/simple.png"
         );
         assert_eq!(
@@ -65,26 +65,26 @@ mod tests {
             "http://localhost/simple.png"
         );
 
-        assert_eq!(series_list.get(0).unwrap().episodes.len(), 2);
+        assert_eq!(series_list.first().unwrap().episodes.len(), 2);
         assert_eq!(series_list.get(1).unwrap().episodes.len(), 2);
 
         assert_eq!(
-            series_list.get(0).unwrap().episodes.get(0).unwrap().name,
+            series_list.first().unwrap().episodes.first().unwrap().name,
             "1"
         );
         assert_eq!(
             series_list
-                .get(0)
+                .first()
                 .unwrap()
                 .episodes
-                .get(0)
+                .first()
                 .unwrap()
                 .addr
                 .to_string(),
             "http://localhost/simple1.mp4"
         );
         assert_eq!(
-            series_list.get(1).unwrap().episodes.get(0).unwrap().name,
+            series_list.get(1).unwrap().episodes.first().unwrap().name,
             "1"
         );
         assert_eq!(
@@ -92,7 +92,7 @@ mod tests {
                 .get(1)
                 .unwrap()
                 .episodes
-                .get(0)
+                .first()
                 .unwrap()
                 .addr
                 .to_string(),
@@ -100,12 +100,12 @@ mod tests {
         );
 
         assert_eq!(
-            series_list.get(0).unwrap().episodes.get(1).unwrap().name,
+            series_list.first().unwrap().episodes.get(1).unwrap().name,
             "2"
         );
         assert_eq!(
             series_list
-                .get(0)
+                .first()
                 .unwrap()
                 .episodes
                 .get(1)
