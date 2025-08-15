@@ -46,7 +46,7 @@ impl App {
         Ok(())
     }
 
-    fn draw(&self, frame: &mut Frame) {
+    fn draw(&mut self, frame: &mut Frame) {
         let chunks = Layout::horizontal([Constraint::Length(30), Constraint::Min(30)])
             .margin(1)
             .split(frame.area());

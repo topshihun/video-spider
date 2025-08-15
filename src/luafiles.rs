@@ -1,11 +1,26 @@
 use dirs::config_dir;
 use std::fs::read_dir;
+use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct LuaFile {
     pub name: String,
     pub path: PathBuf,
+}
+
+impl PartialEq for LuaFile {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == self.name
+    }
+}
+
+impl Eq for LuaFile {}
+
+impl Hash for LuaFile {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.as_bytes().hash(state);
+    }
 }
 
 pub fn get_lua_files() -> Vec<LuaFile> {

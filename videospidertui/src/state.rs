@@ -19,8 +19,7 @@ impl State {
     }
 }
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub enum TabState {
     #[default]
     Home,
@@ -43,13 +42,10 @@ impl TabState {
     }
 }
 
-
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct SeriesTabState {
     index: Option<u32>,
 }
-
 
 #[derive(Debug)]
 pub enum PageState {
@@ -96,7 +92,9 @@ impl FocusState {
     }
 
     pub fn escape(&mut self) {
-        if let FocusState::Page = self { *self = FocusState::Tab }
+        if let FocusState::Page = self {
+            *self = FocusState::Tab
+        }
     }
 }
 
