@@ -1,13 +1,16 @@
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use std::sync::mpsc::{Receiver, Sender};
+
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Layout},
 };
 
 use crate::{
+    message::Message,
     page::Page,
     series_tab::SeriesTab,
-    state::{FocusState, PageState, State},
+    state::{FocusState, State},
     tab::Tab,
 };
 
@@ -19,29 +22,31 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(sender: Sender<Message>) -> Self {
         Self {
             state: State::new(),
             tab: Tab::new(),
             series_tab: SeriesTab::new(),
-            page: Page::new(),
+            page: Page::new(sender),
         }
     }
 
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+    pub fn run(
+        &mut self,
+        terminal: &mut DefaultTerminal,
+        recv: Receiver<Message>,
+    ) -> std::io::Result<()> {
+        terminal.draw(|frame| self.draw(frame))?;
         while !self.state.exit {
-            // update page state
-            match self.state.focus_state {
-                FocusState::Tab => {
-                    self.state.page_state = PageState::Tab(self.state.tab_state.clone());
+            match recv.recv().expect("app run receive error") {
+                Message::Update => {
+                    terminal.draw(|frame| self.draw(frame))?;
                 }
-                FocusState::SeriesTab => {
-                    self.state.page_state = PageState::Series(self.state.series_tab_state.clone());
+                Message::KeyEvent(key_event) => {
+                    self.handle_key_event(key_event);
+                    terminal.draw(|frame| self.draw(frame))?;
                 }
-                _ => {}
             }
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
         }
         Ok(())
     }
@@ -58,12 +63,18 @@ impl App {
         self.tab.draw(
             frame,
             tab_chunks[0],
-            (&self.state.tab_state, &self.state.focus_state),
+            (
+                &self.state.tab_state.read().unwrap(),
+                &self.state.focus_state,
+            ),
         );
         self.series_tab.draw(
             frame,
             tab_chunks[1],
-            (&self.state.series_tab_state, &self.state.focus_state),
+            (
+                &self.state.series_tab_state.read().unwrap(),
+                &self.state.focus_state,
+            ),
         );
         self.page.draw(
             frame,
@@ -72,38 +83,21 @@ impl App {
         );
     }
 
-    fn handle_events(&mut self) -> std::io::Result<()> {
-        match event::read()? {
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                self.handle_key_event(key_event);
-            }
-            _ => {}
-        };
-        Ok(())
-    }
-
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match self.state.focus_state {
             FocusState::Tab => {
                 if let KeyCode::Char('q') = key_event.code {
                     self.state.exit = true;
                 }
-                self.tab.handel_key_event(
-                    key_event,
-                    (&mut self.state.tab_state, &mut self.state.focus_state),
-                );
+                self.tab.handel_key_event(key_event, &mut self.state);
             }
             FocusState::SeriesTab => {
                 if let KeyCode::Char('q') = key_event.code {
                     self.state.exit = true;
                 }
-                self.series_tab
-                    .handel_key_event(key_event, &mut self.state.focus_state);
+                self.series_tab.handel_key_event(key_event, &mut self.state);
             }
-            FocusState::Page => self.page.handel_key_event(
-                key_event,
-                (&self.state.page_state, &mut self.state.focus_state),
-            ),
+            FocusState::Page => self.page.handel_key_event(key_event, &mut self.state),
         }
     }
 }

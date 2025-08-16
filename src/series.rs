@@ -1,12 +1,12 @@
 use url::Url;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct Episode {
     pub name: String,
     pub addr: Url,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct Series {
     pub name: String,
     pub description: String,

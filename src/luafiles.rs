@@ -11,7 +11,7 @@ pub struct LuaFile {
 
 impl PartialEq for LuaFile {
     fn eq(&self, other: &Self) -> bool {
-        self.name == self.name
+        self.name == other.name
     }
 }
 

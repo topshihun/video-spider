@@ -1,20 +1,41 @@
+use std::{
+    rc::Rc,
+    sync::{Arc, RwLock},
+};
+
+use videospider::Series;
+
 #[derive(Debug)]
 pub struct State {
     pub exit: bool,
-    pub tab_state: TabState,
-    pub series_tab_state: SeriesTabState,
+    pub tab_state: Rc<RwLock<TabState>>,
+    pub series_tab_state: Rc<RwLock<SeriesTabState>>,
     pub page_state: PageState,
     pub focus_state: FocusState,
 }
 
 impl State {
     pub fn new() -> Self {
+        let tab_state = Rc::new(RwLock::new(TabState::default()));
+        let series_tab_state = Rc::new(RwLock::new(SeriesTabState::default()));
         Self {
             exit: false,
-            tab_state: TabState::default(),
-            series_tab_state: SeriesTabState::default(),
-            page_state: PageState::default(),
+            tab_state: Rc::clone(&tab_state),
+            series_tab_state: Rc::clone(&series_tab_state),
+            page_state: PageState::Tab(Rc::clone(&tab_state)),
             focus_state: FocusState::default(),
+        }
+    }
+
+    pub fn update_page_state(&mut self) {
+        match self.focus_state {
+            FocusState::Tab => {
+                self.page_state = PageState::Tab(Rc::clone(&self.tab_state));
+            }
+            FocusState::SeriesTab => {
+                self.page_state = PageState::Series(Rc::clone(&self.series_tab_state));
+            }
+            _ => {}
         }
     }
 }
@@ -44,19 +65,28 @@ impl TabState {
 
 #[derive(Debug, Clone, Default)]
 pub struct SeriesTabState {
-    index: Option<u32>,
+    series_list: Vec<Arc<Series>>,
+    index: Option<usize>,
 }
 
-#[derive(Debug)]
-pub enum PageState {
-    Tab(TabState),
-    Series(SeriesTabState),
-}
-
-impl Default for PageState {
-    fn default() -> Self {
-        Self::Tab(TabState::default())
+impl SeriesTabState {
+    pub fn push_series(&mut self, series: &Arc<Series>) {
+        self.series_list.push(Arc::clone(series));
     }
+
+    pub fn get(&self) -> Option<&Series> {
+        if let Some(index) = self.index {
+            Some(self.series_list.get(index).unwrap())
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum PageState {
+    Tab(Rc<RwLock<TabState>>),
+    Series(Rc<RwLock<SeriesTabState>>),
 }
 
 #[derive(Debug)]

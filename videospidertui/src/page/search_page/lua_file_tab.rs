@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::{Color, Style};
 use ratatui::text::Text;
-use ratatui::Frame;
 use videospider::luafiles::LuaFile;
 
 use crate::utils::style_block;

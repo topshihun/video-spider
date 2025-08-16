@@ -5,7 +5,7 @@ use ratatui::{
 };
 
 use crate::{
-    state::{FocusState, TabState},
+    state::{FocusState, State, TabState},
     utils::{style_block, style_text},
 };
 
@@ -45,19 +45,25 @@ impl Tab {
         frame.render_widget(search, chunks_main[1]);
     }
 
-    pub fn handel_key_event(
-        &mut self,
-        key_event: KeyEvent,
-        state: (&mut TabState, &mut FocusState),
-    ) {
-        let (tab_state, focus_state) = state;
-
+    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         match key_event.code {
-            KeyCode::Enter => focus_state.enter(),
-            KeyCode::Char('j') => tab_state.next(),
-            KeyCode::Char('k') => tab_state.prev(),
-            KeyCode::Char('h') => focus_state.prev(),
-            KeyCode::Char('l') => focus_state.next(),
+            KeyCode::Enter => state.focus_state.enter(),
+            KeyCode::Char('j') => {
+                state.tab_state.write().unwrap().next();
+                state.update_page_state();
+            }
+            KeyCode::Char('k') => {
+                state.tab_state.write().unwrap().prev();
+                state.update_page_state();
+            }
+            KeyCode::Char('h') => {
+                state.focus_state.prev();
+                state.update_page_state();
+            }
+            KeyCode::Char('l') => {
+                state.focus_state.next();
+                state.update_page_state();
+            }
             _ => {}
         }
     }

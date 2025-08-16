@@ -2,7 +2,7 @@ mod input;
 mod lua_file_tab;
 
 use std::collections::HashMap;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{Sender, channel};
 use std::sync::{Arc, RwLock};
 use std::thread;
 
@@ -15,10 +15,12 @@ use ratatui::{
 };
 use videospider::{LuaFile, SearchMessage, Series, get_lua_files, search};
 
+use crate::message::Message;
 use crate::page::search_page::lua_file_tab::LuaFileTab;
+use crate::state::State;
 use crate::{
     page::search_page::input::Input,
-    state::{FocusState, PageState},
+    state::PageState,
 };
 
 enum InputMod {
@@ -27,6 +29,7 @@ enum InputMod {
 }
 
 pub struct SearchPage {
+    sender: Sender<Message>,
     input: Input,
     lua_file_tab: LuaFileTab,
     input_mod: InputMod,
@@ -35,13 +38,14 @@ pub struct SearchPage {
 }
 
 impl SearchPage {
-    pub fn new() -> Self {
+    pub fn new(sender: Sender<Message>) -> Self {
         let lua_file_list = get_lua_files();
         let arc_lua_file_list: Vec<Arc<LuaFile>> =
             lua_file_list.into_iter().map(Arc::new).collect();
         let series_list_map = HashMap::with_capacity(arc_lua_file_list.len());
 
         Self {
+            sender,
             input: Input::new(),
             lua_file_tab: LuaFileTab::new(arc_lua_file_list),
             input_mod: InputMod::Normal,
@@ -94,13 +98,14 @@ impl SearchPage {
         }
     }
 
-    pub fn handle_key_event(&mut self, key_event: KeyEvent, state: &mut FocusState) {
+    pub fn handle_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         match self.input_mod {
             InputMod::Normal => match key_event.code {
-                KeyCode::Esc => state.escape(),
+                KeyCode::Esc => state.focus_state.escape(),
                 KeyCode::Char('i') => self.input_mod = InputMod::Editing,
                 KeyCode::Char('j') => self.list_state.select_next(),
                 KeyCode::Char('k') => self.list_state.select_previous(),
+                KeyCode::Enter => self.enter_series(state),
                 _ => {}
             },
             InputMod::Editing => match key_event.code {
@@ -119,6 +124,7 @@ impl SearchPage {
         let lua_file = self.lua_file_tab.get().unwrap().clone();
         let word = self.input.get().clone();
         let series_list_map = Arc::clone(&self.series_list_map);
+        let sender_thread = self.sender.clone();
         thread::spawn(move || {
             let (sender, recv) = channel::<SearchMessage>();
             search(sender, &[lua_file], &word);
@@ -140,6 +146,21 @@ impl SearchPage {
                     SearchMessage::Finished => break,
                 }
             }
+            sender_thread.send(Message::Update).unwrap();
         });
+    }
+
+    fn enter_series(&self, state: &mut State) {
+        if let Some(index) = self.list_state.selected() {
+            // get series
+            let lua_file = self.lua_file_tab.get().unwrap().clone();
+            let series_list_map = self.series_list_map.read().unwrap();
+            let series_list_result = series_list_map.get(&lua_file).unwrap();
+            if let Ok(series_list) = series_list_result {
+                let series = series_list.get(index).unwrap();
+                state.series_tab_state.write().unwrap().push_series(series);
+            }
+        }
+        self.sender.send(Message::Update).unwrap();
     }
 }

@@ -1,7 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{Frame, layout::Rect, text::Text};
 
-use crate::state::{FocusState, PageState};
+use crate::state::{PageState, State};
 
 pub struct HomePage {}
 
@@ -15,9 +15,9 @@ impl HomePage {
         frame.render_widget(text, area);
     }
 
-    pub fn handle_key_event(&mut self, key_evnet: KeyEvent, state: &mut FocusState) {
+    pub fn handle_key_event(&mut self, key_evnet: KeyEvent, state: &mut State) {
         if key_evnet.code == KeyCode::Esc {
-            state.escape()
+            state.focus_state.escape()
         }
     }
 }

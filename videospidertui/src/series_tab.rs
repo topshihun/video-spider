@@ -2,7 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{Frame, layout::Rect};
 
 use crate::{
-    state::{FocusState, SeriesTabState},
+    state::{FocusState, SeriesTabState, State},
     utils::style_block,
 };
 
@@ -25,11 +25,17 @@ impl SeriesTab {
         frame.render_widget(block, area);
     }
 
-    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut FocusState) {
+    pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         match key_event.code {
-            KeyCode::Enter => state.enter(),
-            KeyCode::Char('h') => state.prev(),
-            KeyCode::Char('l') => state.next(),
+            KeyCode::Enter => state.focus_state.enter(),
+            KeyCode::Char('h') => {
+                state.focus_state.prev();
+                state.update_page_state();
+            }
+            KeyCode::Char('l') => {
+                state.focus_state.next();
+                state.update_page_state();
+            }
             _ => {}
         }
     }
