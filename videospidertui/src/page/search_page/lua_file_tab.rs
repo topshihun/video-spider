@@ -61,22 +61,22 @@ impl LuaFileTab {
     }
 
     pub fn next(&mut self) {
-        if let Some(ref mut i) = self.index {
-            if *i == self.lua_file_list.len() {
-                *i = 0;
-                return;
+        if let Some(i) = self.index {
+            if i == self.lua_file_list.len() - 1 {
+                self.index = Some(0);
+            } else {
+                self.index = Some(i.saturating_add(1));
             }
-            *i = i.saturating_add(1);
         }
     }
 
     pub fn prev(&mut self) {
-        if let Some(ref mut i) = self.index {
-            if *i == 0 {
-                *i = self.lua_file_list.len() - 1;
-                return;
+        if let Some(i) = self.index {
+            if i == 0 {
+                self.index = Some(self.lua_file_list.len() - 1);
+            } else {
+                self.index = Some(i.saturating_sub(1));
             }
-            *i = i.saturating_sub(1);
         }
     }
 
