@@ -65,20 +65,45 @@ impl TabState {
 
 #[derive(Debug, Clone, Default)]
 pub struct SeriesTabState {
-    series_list: Vec<Arc<Series>>,
-    index: Option<usize>,
+    pub series_list: Vec<Arc<Series>>,
+    pub index: Option<usize>,
 }
 
 impl SeriesTabState {
     pub fn push_series(&mut self, series: &Arc<Series>) {
         self.series_list.push(Arc::clone(series));
+        self.index = Some(self.series_list.len().saturating_sub(1));
     }
 
     pub fn get(&self) -> Option<&Series> {
         if let Some(index) = self.index {
-            Some(self.series_list.get(index).unwrap())
+            Some(
+                self.series_list
+                    .get(index)
+                    .unwrap_or_else(|| panic!("index: {index} error")),
+            )
         } else {
             None
+        }
+    }
+
+    pub fn next(&mut self) {
+        if let Some(index) = self.index {
+            if index == self.series_list.len() - 1 {
+                self.index = Some(0);
+            } else {
+                self.index = Some(index.saturating_add(1));
+            }
+        }
+    }
+
+    pub fn prev(&mut self) {
+        if let Some(index) = self.index {
+            if index == 0 {
+                self.index = Some(self.series_list.len().saturating_sub(1));
+            } else {
+                self.index = Some(index.saturating_sub(1));
+            }
         }
     }
 }

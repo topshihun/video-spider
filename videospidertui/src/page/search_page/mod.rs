@@ -18,15 +18,14 @@ use videospider::{LuaFile, SearchMessage, Series, get_lua_files, search};
 use crate::message::Message;
 use crate::page::search_page::lua_file_tab::LuaFileTab;
 use crate::state::State;
-use crate::{
-    page::search_page::input::Input,
-    state::PageState,
-};
+use crate::{page::search_page::input::Input, state::PageState};
 
 enum InputMod {
     Normal,
     Editing,
 }
+
+type SeriesList = Vec<Arc<Series>>;
 
 pub struct SearchPage {
     sender: Sender<Message>,
@@ -34,7 +33,7 @@ pub struct SearchPage {
     lua_file_tab: LuaFileTab,
     input_mod: InputMod,
     list_state: ListState,
-    series_list_map: Arc<RwLock<HashMap<Arc<LuaFile>, videospider::Result<Vec<Arc<Series>>>>>>,
+    series_list_map: Arc<RwLock<HashMap<Arc<LuaFile>, videospider::Result<SeriesList>>>>,
 }
 
 impl SearchPage {
@@ -83,7 +82,8 @@ impl SearchPage {
                             .highlight_style(Style::new().reversed());
                         frame.render_stateful_widget(list, chunks[2], &mut self.list_state);
                     }
-                    Err(e) => {
+                    // TODO: show error information.
+                    Err(_e) => {
                         let paragraph =
                             Paragraph::new("error").block(Block::bordered().title("errro"));
                         frame.render_widget(paragraph, chunks[2]);
@@ -105,6 +105,8 @@ impl SearchPage {
                 KeyCode::Char('i') => self.input_mod = InputMod::Editing,
                 KeyCode::Char('j') => self.list_state.select_next(),
                 KeyCode::Char('k') => self.list_state.select_previous(),
+                KeyCode::Char('h') => self.lua_file_tab.prev(),
+                KeyCode::Char('l') => self.lua_file_tab.next(),
                 KeyCode::Enter => self.enter_series(state),
                 _ => {}
             },

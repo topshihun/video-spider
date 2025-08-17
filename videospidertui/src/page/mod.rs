@@ -63,10 +63,13 @@ impl Page {
 
     pub fn handel_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         // TODO: remove page_state clone
-        if let PageState::Tab(tab_state) = state.page_state.clone() {
-            match *tab_state.read().unwrap() {
+        match state.page_state.clone() {
+            PageState::Tab(tab_state) => match *tab_state.read().unwrap() {
                 TabState::Home => self.home_page.handle_key_event(key_event, state),
                 TabState::Search => self.search_page.handle_key_event(key_event, state),
+            },
+            PageState::Series(_) => {
+                self.series_page.handle_key_event(key_event, state);
             }
         }
     }
