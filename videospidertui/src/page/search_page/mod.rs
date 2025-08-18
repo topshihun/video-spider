@@ -101,7 +101,7 @@ impl SearchPage {
     pub fn handle_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         match self.input_mod {
             InputMod::Normal => match key_event.code {
-                KeyCode::Esc => state.focus_state.escape(),
+                KeyCode::Esc | KeyCode::Char('q') => state.focus_state.escape(&state.page_state),
                 KeyCode::Char('i') => self.input_mod = InputMod::Editing,
                 KeyCode::Char('j') => self.list_state.select_next(),
                 KeyCode::Char('k') => self.list_state.select_previous(),

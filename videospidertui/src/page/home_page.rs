@@ -16,8 +16,11 @@ impl HomePage {
     }
 
     pub fn handle_key_event(&mut self, key_evnet: KeyEvent, state: &mut State) {
-        if key_evnet.code == KeyCode::Esc {
-            state.focus_state.escape()
+        match key_evnet.code {
+            KeyCode::Esc | KeyCode::Char('q') => {
+                state.focus_state.escape(&state.page_state);
+            }
+            _ => {}
         }
     }
 }

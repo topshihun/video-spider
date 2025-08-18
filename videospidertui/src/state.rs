@@ -139,16 +139,15 @@ impl FocusState {
     }
 
     pub fn enter(&mut self) {
-        match self {
-            FocusState::Tab => *self = FocusState::Page,
-            FocusState::SeriesTab => *self = FocusState::Page,
-            _ => {}
-        }
+        *self = FocusState::Page;
     }
 
-    pub fn escape(&mut self) {
+    pub fn escape(&mut self, page_state: &PageState) {
         if let FocusState::Page = self {
-            *self = FocusState::Tab
+            match page_state {
+                PageState::Tab(_) => *self = FocusState::Tab,
+                PageState::Series(_) => *self = FocusState::SeriesTab,
+            }
         }
     }
 }

@@ -34,18 +34,17 @@ impl SeriesPage {
 
     pub fn handle_key_event(&mut self, key_event: KeyEvent, state: &mut State) {
         match key_event.code {
-            KeyCode::Char('j') => {
-                self.list_state.select_next();
-            }
+            KeyCode::Char('j') => self.list_state.select_next(),
             KeyCode::Char('k') => self.list_state.select_previous(),
             KeyCode::Enter => {
                 if let Some(index) = self.list_state.selected()
-                    && let Some(series) = state.series_tab_state.read().unwrap().get() {
-                        let episode = series.episodes.get(index).unwrap();
-                        play(episode).unwrap();
-                    }
+                    && let Some(series) = state.series_tab_state.read().unwrap().get()
+                {
+                    let episode = series.episodes.get(index).unwrap();
+                    play(episode).unwrap();
+                }
             }
-            KeyCode::Esc => state.focus_state.escape(),
+            KeyCode::Esc | KeyCode::Char('q') => state.focus_state.escape(&state.page_state),
             _ => {}
         }
     }
