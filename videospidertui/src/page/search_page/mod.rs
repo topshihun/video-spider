@@ -123,33 +123,35 @@ impl SearchPage {
     }
 
     fn start_search(&self) {
-        let lua_file = self.lua_file_tab.get().unwrap().clone();
-        let word = self.input.get().clone();
-        let series_list_map = Arc::clone(&self.series_list_map);
-        let sender_thread = self.sender.clone();
-        thread::spawn(move || {
-            let (sender, recv) = channel::<SearchMessage>();
-            search(sender, &[lua_file], &word);
-            while let Ok(search_result) = recv.recv() {
-                match search_result {
-                    SearchMessage::Continue(lua_file, result) => {
-                        let result = match result {
-                            Ok(o) => {
-                                let arc_series_list = o.into_iter().map(Arc::new).collect();
-                                videospider::Result::Ok(arc_series_list)
-                            }
-                            Err(e) => videospider::Result::Err(e),
-                        };
-                        series_list_map
-                            .write()
-                            .unwrap()
-                            .insert(Arc::new(lua_file), result);
+        if let Some(lua_file) = self.lua_file_tab.get() {
+            let lua_file = lua_file.clone();
+            let word = self.input.get().clone();
+            let series_list_map = Arc::clone(&self.series_list_map);
+            let sender_thread = self.sender.clone();
+            thread::spawn(move || {
+                let (sender, recv) = channel::<SearchMessage>();
+                search(sender, &[lua_file], &word);
+                while let Ok(search_result) = recv.recv() {
+                    match search_result {
+                        SearchMessage::Continue(lua_file, result) => {
+                            let result = match result {
+                                Ok(o) => {
+                                    let arc_series_list = o.into_iter().map(Arc::new).collect();
+                                    videospider::Result::Ok(arc_series_list)
+                                }
+                                Err(e) => videospider::Result::Err(e),
+                            };
+                            series_list_map
+                                .write()
+                                .unwrap()
+                                .insert(Arc::new(lua_file), result);
+                        }
+                        SearchMessage::Finished => break,
                     }
-                    SearchMessage::Finished => break,
                 }
-            }
-            sender_thread.send(Message::Update).unwrap();
-        });
+                sender_thread.send(Message::Update).unwrap();
+            });
+        }
     }
 
     fn enter_series(&self, state: &mut State) {

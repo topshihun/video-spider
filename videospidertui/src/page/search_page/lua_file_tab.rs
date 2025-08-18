@@ -3,7 +3,7 @@ use std::sync::Arc;
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::{Color, Style};
-use ratatui::text::Text;
+use ratatui::text::{Line, Text};
 use videospider::luafiles::LuaFile;
 
 use crate::utils::style_block;
@@ -30,32 +30,37 @@ impl LuaFileTab {
         let block_inner = block.inner(area);
         frame.render_widget(block, area);
 
-        let text_list: Vec<Text> = self
-            .lua_file_list
-            .iter()
-            .map(|lua_file| Text::from(lua_file.name.clone()))
-            .collect();
-        let mut constraint_list: Vec<Constraint> = Vec::with_capacity(text_list.len());
-        for _ in 0..text_list.len() {
-            constraint_list.push(Constraint::Fill(1));
-        }
-        let len = constraint_list.len();
-        let chunks = Layout::horizontal(constraint_list)
-            .spacing(1)
-            .split(block_inner);
-        for i in 0..len {
-            if let Some(index) = self.index {
-                let mut text = text_list.get(index).unwrap().clone();
-                if i == index {
-                    text = text_list
-                        .get(i)
-                        .unwrap()
-                        .clone()
-                        .style(Style::new().bg(Color::Blue));
+        if self.lua_file_list.is_empty() {
+            let line = Line::from("Can't find lua files");
+            frame.render_widget(line, block_inner);
+        } else {
+            let text_list: Vec<Text> = self
+                .lua_file_list
+                .iter()
+                .map(|lua_file| Text::from(lua_file.name.clone()))
+                .collect();
+            let mut constraint_list: Vec<Constraint> = Vec::with_capacity(text_list.len());
+            for _ in 0..text_list.len() {
+                constraint_list.push(Constraint::Fill(1));
+            }
+            let len = constraint_list.len();
+            let chunks = Layout::horizontal(constraint_list)
+                .spacing(1)
+                .split(block_inner);
+            for i in 0..len {
+                if let Some(index) = self.index {
+                    let mut text = text_list.get(index).unwrap().clone();
+                    if i == index {
+                        text = text_list
+                            .get(i)
+                            .unwrap()
+                            .clone()
+                            .style(Style::new().bg(Color::Blue));
+                    }
+                    frame.render_widget(text, chunks[i]);
+                } else {
+                    frame.render_widget(text_list.get(i).unwrap(), chunks[i]);
                 }
-                frame.render_widget(text, chunks[i]);
-            } else {
-                frame.render_widget(text_list.get(i).unwrap(), chunks[i]);
             }
         }
     }

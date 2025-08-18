@@ -39,12 +39,11 @@ impl SeriesPage {
             }
             KeyCode::Char('k') => self.list_state.select_previous(),
             KeyCode::Enter => {
-                if let Some(index) = self.list_state.selected() {
-                    if let Some(series) = state.series_tab_state.read().unwrap().get() {
+                if let Some(index) = self.list_state.selected()
+                    && let Some(series) = state.series_tab_state.read().unwrap().get() {
                         let episode = series.episodes.get(index).unwrap();
                         play(episode).unwrap();
                     }
-                }
             }
             KeyCode::Esc => state.focus_state.escape(),
             _ => {}
