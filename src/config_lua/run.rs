@@ -18,15 +18,14 @@ pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
         let image: String = table.get("image")?;
         let image: Url = Url::parse(&image).unwrap();
         let description: String = table.get("description")?;
-        let lua_episodes: LuaTable = table.get("episodes")?;
+        let lua_episode_list: LuaTable = table.get("episodes")?;
         let mut episodes: Vec<Episode> = Vec::new();
-        for pair in lua_episodes.pairs() {
-            let (key, value): (String, String) = pair?;
-            let value: Url = Url::parse(&value).unwrap();
-            episodes.push(Episode {
-                name: key,
-                addr: value,
-            });
+        for i in 1..=lua_episode_list.len()? {
+            let lua_episode: LuaTable = lua_episode_list.get(i)?;
+            let name: String = lua_episode.get("name")?;
+            let addr: String = lua_episode.get("addr")?;
+            let addr: Url = Url::parse(&addr).unwrap();
+            episodes.push(Episode { name, addr });
         }
         let series = Series {
             name,

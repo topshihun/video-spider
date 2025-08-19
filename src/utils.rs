@@ -40,10 +40,11 @@ pub fn decode_unicode(input: &str) -> String {
                     // parse hex
                     if let Ok(code) = u32::from_str_radix(&hex_str, 16)
                         && ((is_left_braced && is_right_braced) || hex_str.len() == 4)
-                        && let Some(decoded) = char::from_u32(code) {
-                            result.push(decoded);
-                            continue;
-                        }
+                        && let Some(decoded) = char::from_u32(code)
+                    {
+                        result.push(decoded);
+                        continue;
+                    }
 
                     // parse failed
                     result.push('\\');
