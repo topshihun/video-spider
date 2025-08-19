@@ -41,10 +41,7 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
                 }
                 Err(err) => {
                     if sender
-                        .send(SearchMessage::Continue(
-                            lua_file,
-                            Err(LuaFailed(err.to_string())),
-                        ))
+                        .send(SearchMessage::Continue(lua_file, Err(LuaFailed(err))))
                         .is_err()
                     {
                         channel_valid.store(false, Ordering::SeqCst);
