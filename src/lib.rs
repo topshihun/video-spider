@@ -4,6 +4,7 @@ pub mod luafiles;
 pub mod play;
 pub mod search;
 pub mod series;
+mod utils;
 
 pub use search::SearchMessage;
 pub use search::search;

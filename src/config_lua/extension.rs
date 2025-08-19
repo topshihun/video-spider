@@ -4,6 +4,8 @@ use serde_json::Value;
 use std::string::String;
 use urlencoding::{decode, encode};
 
+use crate::utils::decode_unicode;
+
 // Lua function
 fn http_get(_: &Lua, url: String) -> LuaResult<String> {
     let body = Client::new()
@@ -101,6 +103,20 @@ fn url_decode(_: &Lua, data: String) -> LuaResult<String> {
     Ok(decode(&data).expect("data is not utf-8").to_string())
 }
 
+// Lua function
+fn unicode_encode(_: &Lua, data: String) -> LuaResult<String> {
+    let mut result = String::new();
+    for c in data.chars() {
+        result.push_str(&format!("\\u{{{:X}}}", c as u32));
+    }
+    Ok(result)
+}
+
+// Lua function
+fn unicode_decode(_: &Lua, data: String) -> LuaResult<String> {
+    Ok(decode_unicode(&data))
+}
+
 pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
     let globals = lua.globals();
     let utils = lua.create_table()?;
@@ -110,6 +126,8 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
     utils.set("string_split", lua.create_function(string_split)?)?;
     utils.set("url_encode", lua.create_function(url_encode)?)?;
     utils.set("url_decode", lua.create_function(url_decode)?)?;
+    utils.set("unicode_encode", lua.create_function(unicode_encode)?)?;
+    utils.set("unicode_decode", lua.create_function(unicode_decode)?)?;
 
     globals.set("utils", utils)?;
 
@@ -120,7 +138,10 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
 mod tests {
     use std::path::Path;
 
-    use super::{json_parse, lua_extension, string_split, url_decode, url_encode};
+    use super::{
+        json_parse, lua_extension, string_split, unicode_decode, unicode_encode, url_decode,
+        url_encode,
+    };
     use mlua::{Lua, Table};
 
     #[test]
@@ -236,5 +257,44 @@ mod tests {
         .unwrap();
         let res: String = lua.globals().get("res").unwrap();
         assert_eq!(res, "ac=b&b=ac");
+    }
+
+    #[test]
+    fn test_unicode_encode() {
+        let lua = Lua::new();
+        lua.globals()
+            .set(
+                "unicode_encode",
+                lua.create_function(unicode_encode).unwrap(),
+            )
+            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_unicode_encode.lua",
+        ))
+        .exec()
+        .unwrap();
+        let res: String = lua.globals().get("res").unwrap();
+        assert_eq!(
+            res,
+            "\\u{48}\\u{65}\\u{6C}\\u{6C}\\u{6F}\\u{20}\\u{4C}\\u{75}\\u{61}"
+        );
+    }
+
+    #[test]
+    fn test_unicode_decode() {
+        let lua = Lua::new();
+        lua.globals()
+            .set(
+                "unicode_decode",
+                lua.create_function(unicode_decode).unwrap(),
+            )
+            .unwrap();
+        lua.load(Path::new(
+            "./tests/config_lua/extension/test_unicode_decode.lua",
+        ))
+        .exec()
+        .unwrap();
+        let res: String = lua.globals().get("res").unwrap();
+        assert_eq!(res, "Hello Lua");
     }
 }
