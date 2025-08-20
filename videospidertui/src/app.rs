@@ -53,7 +53,7 @@ impl App {
 
     fn draw(&mut self, frame: &mut Frame) {
         let chunks = Layout::horizontal([Constraint::Length(30), Constraint::Min(30)])
-            .margin(1)
+            .margin(0)
             .split(frame.area());
 
         let tab_chunks = Layout::vertical([Constraint::Length(4), Constraint::Min(2)])

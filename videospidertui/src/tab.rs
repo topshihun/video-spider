@@ -19,29 +19,20 @@ impl Tab {
     pub fn draw(&self, frame: &mut Frame, area: Rect, state: (&TabState, &FocusState)) {
         let (tab_state, focus_state) = state;
 
-        let block = if let FocusState::Tab = focus_state {
-            style_block("tab", true)
-        } else {
-            style_block("tab", false)
-        };
+        let focus = matches!(focus_state, FocusState::Tab);
+        let block = style_block("tab", focus);
         frame.render_widget(block, area);
 
         let chunks_main = Layout::vertical([Constraint::Length(1), Constraint::Length(1)])
             .margin(1)
             .split(area);
 
-        let home = if let TabState::Home = tab_state {
-            style_text("home", true)
-        } else {
-            style_text("home", false)
-        };
+        let home_focus = matches!(tab_state, TabState::Home);
+        let home = style_text("home", home_focus && focus);
         frame.render_widget(home, chunks_main[0]);
 
-        let search = if let TabState::Search = tab_state {
-            style_text("search", true)
-        } else {
-            style_text("search", false)
-        };
+        let search_focus = matches!(tab_state, TabState::Search);
+        let search = style_text("search", search_focus && focus);
         frame.render_widget(search, chunks_main[1]);
     }
 

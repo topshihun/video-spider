@@ -17,7 +17,7 @@ use videospider::{LuaFile, SearchMessage, Series, get_lua_files, search};
 
 use crate::message::Message;
 use crate::page::search_page::lua_file_tab::LuaFileTab;
-use crate::state::State;
+use crate::state::{FocusState, State};
 use crate::{page::search_page::input::Input, state::PageState};
 
 enum InputMod {
@@ -161,10 +161,12 @@ impl SearchPage {
             let series_list_map = self.series_list_map.read().unwrap();
             let series_list_result = series_list_map.get(&lua_file).unwrap();
             if let Ok(series_list) = series_list_result {
+                // put series to tab widget
                 let series = series_list.get(index).unwrap();
                 state.series_tab_state.write().unwrap().push_series(series);
+                state.focus_state = FocusState::SeriesTab;
+                state.update_page_state();
             }
         }
-        self.sender.send(Message::Update).unwrap();
     }
 }

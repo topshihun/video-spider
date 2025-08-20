@@ -34,14 +34,28 @@ jobs:
           override: true
       - name: Checking out sources
         uses: actions/checkout@v1
+      - name: Buiding cli package
+        run: cargo build -p videospidercli --release --target ${{ matrix.target }}
       - name: Buiding tui package
         run: cargo build -p videospidertui --release --target ${{ matrix.target }}
       - name: Packaging final binary
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
+          # videospidercli
+          BINARY_NAME=videospidercli${{ matrix.binary_postfix }}
+          RELEASE_NAME=videospidercli-${{ matrix.artifact_prefix }}
+          strip $BINARY_NAME
+          tar czvf $RELEASE_NAME.tar.gz $BINARY_NAME
+          if [[ ${{ runner.os }} == 'Windows' ]]; then
+            certutil -hashfile $RELEASE_NAME.tar.gz sha256 | grep -E [A-Fa-f0-9]{64} > $RELEASE_NAME.sha256
+          else
+            shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
+          fi
+          # videospidertui
           BINARY_NAME=videospidertui${{ matrix.binary_postfix }}
           RELEASE_NAME=videospidertui-${{ matrix.artifact_prefix }}
+          strip $BINARY_NAME
           tar czvf $RELEASE_NAME.tar.gz $BINARY_NAME
           if [[ ${{ runner.os }} == 'Windows' ]]; then
             certutil -hashfile $RELEASE_NAME.tar.gz sha256 | grep -E [A-Fa-f0-9]{64} > $RELEASE_NAME.sha256
@@ -52,6 +66,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.tar.gz
+            target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.sha256
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.tar.gz
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.sha256
             LICENSE
