@@ -5,6 +5,8 @@ use crossterm::event::{self, KeyEventKind};
 use crate::message::Message;
 
 mod app;
+mod help_buttom;
+mod help_info;
 mod message;
 mod page;
 mod series_tab;
