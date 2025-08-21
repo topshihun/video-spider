@@ -7,6 +7,7 @@ use ratatui::{
 };
 
 use crate::{
+    help_buttom::HelpButtom,
     message::Message,
     page::Page,
     series_tab::SeriesTab,
@@ -19,6 +20,7 @@ pub struct App {
     tab: Tab,
     series_tab: SeriesTab,
     page: Page,
+    help_buttom: HelpButtom,
 }
 
 impl App {
@@ -28,6 +30,7 @@ impl App {
             tab: Tab::new(),
             series_tab: SeriesTab::new(),
             page: Page::new(sender),
+            help_buttom: HelpButtom::new(),
         }
     }
 
@@ -52,9 +55,13 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let chunks = Layout::horizontal([Constraint::Length(30), Constraint::Min(30)])
+        let top_chunks = Layout::vertical([Constraint::Min(10), Constraint::Length(1)])
             .margin(0)
             .split(frame.area());
+
+        let chunks = Layout::horizontal([Constraint::Length(30), Constraint::Min(30)])
+            .margin(0)
+            .split(top_chunks[0]);
 
         let tab_chunks = Layout::vertical([Constraint::Length(4), Constraint::Min(2)])
             .margin(0)
@@ -81,6 +88,7 @@ impl App {
             chunks[1],
             (&self.state.page_state, &self.state.focus_state),
         );
+        self.help_buttom.draw(frame, top_chunks[1], &self.state);
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
