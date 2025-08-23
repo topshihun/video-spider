@@ -8,7 +8,7 @@ use std::thread;
 
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, List, ListState, Paragraph};
+use ratatui::widgets::{List, ListState, Paragraph};
 use ratatui::{
     Frame,
     layout::{Constraint, Layout, Rect},
@@ -59,7 +59,7 @@ impl SearchPage {
             Constraint::Length(3),
             Constraint::Min(3),
         ])
-        .margin(1)
+        .margin(0)
         .split(area);
 
         // draw search input
@@ -77,21 +77,17 @@ impl SearchPage {
                             .iter()
                             .map(|series| series.name.clone())
                             .collect();
-                        let list = List::new(items)
-                            .block(Block::bordered().title("search"))
-                            .highlight_style(Style::new().reversed());
+                        let list = List::new(items).highlight_style(Style::new().reversed());
                         frame.render_stateful_widget(list, chunks[2], &mut self.list_state);
                     }
                     // TODO: show error information.
                     Err(_e) => {
-                        let paragraph =
-                            Paragraph::new("error").block(Block::bordered().title("errro"));
+                        let paragraph = Paragraph::new("error").centered();
                         frame.render_widget(paragraph, chunks[2]);
                     }
                 },
                 None => {
-                    let paragraph =
-                        Paragraph::new("Nothing").block(Block::bordered().title("search"));
+                    let paragraph = Paragraph::new("Nothing").centered();
                     frame.render_widget(paragraph, chunks[2]);
                 }
             }
