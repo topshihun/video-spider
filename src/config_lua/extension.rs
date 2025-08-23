@@ -148,11 +148,7 @@ pub fn lua_extension(lua: &Lua, output: Option<Output>) -> LuaResult<()> {
 
     utils.set(
         "log",
-        lua.create_function(if output.is_none() {
-            nothing_log
-        } else {
-            log
-        })?,
+        lua.create_function(if output.is_none() { nothing_log } else { log })?,
     )?;
 
     // move output
