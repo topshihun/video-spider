@@ -19,3 +19,5 @@ pub use play::play;
 
 pub use series::Episode;
 pub use series::Series;
+
+pub use config_lua::output::Output;

@@ -1,7 +1,8 @@
+use super::output::Output;
 use mlua::prelude::*;
 use reqwest::blocking::Client;
 use serde_json::Value;
-use std::string::String;
+use std::{io::Write, string::String};
 use urlencoding::{decode, encode};
 
 use crate::utils::decode_unicode;
@@ -117,7 +118,23 @@ fn unicode_decode(_: &Lua, data: String) -> LuaResult<String> {
     Ok(decode_unicode(&data))
 }
 
-pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
+// Lua function
+fn log(lua: &Lua, data: LuaVariadic<LuaValue>) -> LuaResult<()> {
+    let tostring = lua.globals().get::<LuaFunction>("tostring")?;
+    let mut output: mlua::AppDataRefMut<'_, Output> = lua.app_data_mut().expect("check app data");
+    for value in data.iter() {
+        let string: String = tostring.call(value)?;
+        write!(output, "{}", string)?;
+    }
+    Ok(())
+}
+
+// Lua function
+fn nothing_log(_: &Lua, _: LuaVariadic<LuaValue>) -> LuaResult<()> {
+    Ok(())
+}
+
+pub fn lua_extension(lua: &Lua, output: Option<Output>) -> LuaResult<()> {
     let globals = lua.globals();
     let utils = lua.create_table()?;
 
@@ -129,6 +146,16 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
     utils.set("unicode_encode", lua.create_function(unicode_encode)?)?;
     utils.set("unicode_decode", lua.create_function(unicode_decode)?)?;
 
+    utils.set(
+        "log",
+        lua.create_function(if output.is_none() { nothing_log } else { log })?,
+    )?;
+
+    // move output
+    if let Some(output) = output {
+        lua.set_app_data(output);
+    }
+
     globals.set("utils", utils)?;
 
     Ok(())
@@ -136,11 +163,14 @@ pub fn lua_extension(lua: &Lua) -> LuaResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use std::{
+        path::Path,
+        sync::{Arc, Mutex},
+    };
 
     use super::{
-        json_parse, lua_extension, string_split, unicode_decode, unicode_encode, url_decode,
-        url_encode,
+        super::output::Output, json_parse, log, lua_extension, string_split, unicode_decode,
+        unicode_encode, url_decode, url_encode,
     };
     use mlua::{Lua, Table};
 
@@ -148,7 +178,7 @@ mod tests {
     // Just check usage of these functions call
     fn test_lua_extension() {
         let lua = Lua::new();
-        lua_extension(&lua).unwrap();
+        lua_extension(&lua, Some(Output::stdout())).unwrap();
         lua.load(Path::new(
             "./tests/config_lua/extension/test_lua_extension.lua",
         ))
@@ -296,5 +326,19 @@ mod tests {
         .unwrap();
         let res: String = lua.globals().get("res").unwrap();
         assert_eq!(res, "Hello Lua");
+    }
+
+    #[test]
+    fn test_log() {
+        let lua = Lua::new();
+        let buffer = Arc::new(Mutex::new(Vec::new()));
+        lua.set_app_data(Output::buffer(Arc::clone(&buffer)));
+        lua.globals()
+            .set("log", lua.create_function(log).unwrap())
+            .unwrap();
+        lua.load(Path::new("./tests/config_lua/extension/test_log.lua"))
+            .exec()
+            .unwrap();
+        assert_eq!(String::from_utf8_lossy(&buffer.lock().unwrap()), "123");
     }
 }

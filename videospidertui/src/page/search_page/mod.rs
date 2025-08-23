@@ -130,7 +130,7 @@ impl SearchPage {
             let sender_thread = self.sender.clone();
             thread::spawn(move || {
                 let (sender, recv) = channel::<SearchMessage>();
-                search(sender, &[lua_file], &word);
+                search(sender, &[lua_file], &word, None);
                 while let Ok(search_result) = recv.recv() {
                     match search_result {
                         SearchMessage::Continue(lua_file, result) => {

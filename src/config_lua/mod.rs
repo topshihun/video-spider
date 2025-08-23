@@ -1,2 +1,3 @@
-pub mod extension;
+mod extension;
+pub mod output;
 pub mod run;

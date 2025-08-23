@@ -1,13 +1,14 @@
 use super::super::series::{Episode, Series};
 use super::extension::lua_extension;
+use super::output::Output;
 use mlua::prelude::*;
 use std::path::Path;
 use url::Url;
 
-pub fn lua_run(path: &Path, keyword: &str) -> LuaResult<Vec<Series>> {
+pub fn lua_run(path: &Path, keyword: &str, output: Option<Output>) -> LuaResult<Vec<Series>> {
     let lua = Lua::new();
     // add some functions for Lua
-    lua_extension(&lua)?;
+    lua_extension(&lua, output)?;
     lua.load(path).exec()?;
     let main: LuaFunction = lua.globals().get("main")?;
     let series_list: LuaTable = main.call(keyword)?;
@@ -46,7 +47,7 @@ mod tests {
     #[test]
     fn test_lua_run() {
         let path = Path::new("./tests/config_lua/simple_main.lua");
-        let series_list = lua_run(path, "_mykey").unwrap();
+        let series_list = lua_run(path, "_mykey", None).unwrap();
         assert_eq!(series_list.len(), 2);
 
         assert_eq!(series_list.first().unwrap().name, "video_name1_mykey");
