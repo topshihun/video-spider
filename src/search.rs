@@ -1,3 +1,5 @@
+use crate::config_lua::output::Output;
+
 use super::config_lua::run::lua_run;
 use super::error::{Error::LuaFailed, Result};
 use super::luafiles::LuaFile;
@@ -17,7 +19,12 @@ pub enum SearchMessage {
     Finished,
 }
 
-pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword: &str) {
+pub fn search(
+    sender: Sender<SearchMessage>,
+    used_lua_files: &[LuaFile],
+    keyword: &str,
+    output: Option<Output>,
+) {
     let threadpool = ThreadPool::new(THREAD_NUM);
     let channel_valid = Arc::new(AtomicBool::new(true));
     for lua_file in used_lua_files {
@@ -25,11 +32,12 @@ pub fn search(sender: Sender<SearchMessage>, used_lua_files: &[LuaFile], keyword
         let keyword = keyword.to_string();
         let lua_file = lua_file.clone();
         let channel_valid = Arc::clone(&channel_valid);
+        let output = output.clone();
         threadpool.execute(move || {
             if !channel_valid.load(Ordering::SeqCst) {
                 return;
             }
-            let res: LuaResult<Vec<Series>> = lua_run(&lua_file.path, &keyword);
+            let res: LuaResult<Vec<Series>> = lua_run(&lua_file.path, &keyword, output);
             match res {
                 Ok(series_list) => {
                     if sender

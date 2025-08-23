@@ -1,6 +1,7 @@
 use clap::Parser;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
+use videospider::Output;
 use videospider::luafiles::LuaFile;
 use videospider::search::{SearchMessage, search};
 
@@ -22,7 +23,7 @@ fn main() {
         path: lua_path,
     };
     let (sender, receiver) = channel::<SearchMessage>();
-    search(sender, &[lua_file], &keyword);
+    search(sender, &[lua_file], &keyword, Some(Output::stdout()));
     while let SearchMessage::Continue(lua_file, res) = receiver.recv().unwrap() {
         let series_list = res.unwrap();
         println!("name: {}", lua_file.name);
