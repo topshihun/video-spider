@@ -49,17 +49,16 @@ impl LuaFileTab {
                 .split(block_inner);
             for i in 0..len {
                 if let Some(index) = self.index {
-                    let mut text = text_list.get(index).unwrap().clone();
-                    if i == index {
-                        text = text_list
+                    let text = if i == index {
+                        text_list
                             .get(i)
                             .unwrap()
                             .clone()
-                            .style(Style::new().bg(Color::Blue));
-                    }
+                            .style(Style::new().bg(Color::Blue))
+                    } else {
+                        text_list.get(i).unwrap().clone()
+                    };
                     frame.render_widget(text, chunks[i]);
-                } else {
-                    frame.render_widget(text_list.get(i).unwrap(), chunks[i]);
                 }
             }
         }
