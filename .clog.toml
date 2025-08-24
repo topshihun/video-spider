@@ -1,0 +1,3 @@
+[clog]
+repository = "https://github.com/topshihun/video-spider"
+from-latest-tag = true
