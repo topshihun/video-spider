@@ -13,6 +13,7 @@ pub use error::Error;
 pub use error::Result;
 
 pub use luafiles::LuaFile;
+pub use luafiles::get_config_path;
 pub use luafiles::get_lua_files;
 
 pub use play::play;

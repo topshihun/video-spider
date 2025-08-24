@@ -23,9 +23,14 @@ impl Hash for LuaFile {
     }
 }
 
-pub fn get_lua_files() -> Vec<LuaFile> {
+pub fn get_config_path() -> PathBuf {
     let mut config_path = config_dir().expect("Can't find config directory.");
     config_path.push("videospider");
+    config_path
+}
+
+pub fn get_lua_files() -> Vec<LuaFile> {
+    let config_path = get_config_path();
     std::fs::create_dir_all(&config_path).expect("Failed to create config path");
     let mut lua_files: Vec<LuaFile> = Vec::new();
     for entry in read_dir(config_path).unwrap() {
