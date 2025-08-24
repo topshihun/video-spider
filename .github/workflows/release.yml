@@ -66,7 +66,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: false
-          files: 
+          files: |
             target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.tar.gz
             target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.sha256
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.tar.gz
