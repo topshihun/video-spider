@@ -6,29 +6,6 @@ on:
       - 'v*.*.*'
 
 jobs:
-  create-release:
-    name: Create release
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create_release.outputs.id }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-
-      - name: Run Semantic Release
-        id: semantic_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --no-ci --branches main
-
   build:
     name: Publishing for ${{ matrix.os }}
     needs: create-release
@@ -87,15 +64,14 @@ jobs:
             shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
           fi
       - name: Release assets
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v2
         with:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-          file: |
+          generate_release_notes: false
+          files: 
             target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.tar.gz
             target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.sha256
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.tar.gz
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.sha256
             LICENSE
-          tab: ${{ github.rf_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
