@@ -80,9 +80,8 @@ impl SearchPage {
                         let list = List::new(items).highlight_style(Style::new().reversed());
                         frame.render_stateful_widget(list, chunks[2], &mut self.list_state);
                     }
-                    // TODO: show error information.
-                    Err(_e) => {
-                        let paragraph = Paragraph::new("error").centered();
+                    Err(e) => {
+                        let paragraph = Paragraph::new(e.to_string()).centered();
                         frame.render_widget(paragraph, chunks[2]);
                     }
                 },
