@@ -60,7 +60,7 @@ fn main() {
                         println!("{} error occurred:", lua_file.name);
                         println!("{}", e);
                         return;
-                    },
+                    }
                 };
                 println!("name: {}", lua_file.name);
                 for series in series_list {
