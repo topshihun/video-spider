@@ -6,8 +6,34 @@ on:
       - 'v*.*.*'
 
 jobs:
+  generate-changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    outputs:
+      changelog-generated: ${{ steps.set-output.outputs.changelog-generated }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup cargo
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install git-cliff
+        run: cargo install git-cliff
+      - name: Generate changelog
+        run: |
+          git-cliff --latest
+          git-cliff --latest > CHANGELOG.txt
+      - name: Upload changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: CHANGELOG.txt
+
   build:
     name: Publishing for ${{ matrix.os }}
+    needs: generate-changelog
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -26,6 +52,10 @@ jobs:
             binary_postfix: ".exe"
 
     steps:
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
       - name: Installing Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
@@ -65,12 +95,10 @@ jobs:
       - name: Release assets
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: false
+          body_path: CHANGELOG.txt
           files: |
             target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.tar.gz
-            target/${{ matrix.target }}/release/videospidercli-${{ matrix.artifact_prefix }}.sha256
             target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.tar.gz
-            target/${{ matrix.target }}/release/videospidertui-${{ matrix.artifact_prefix }}.sha256
             LICENSE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
