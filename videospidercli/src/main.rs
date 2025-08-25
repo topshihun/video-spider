@@ -54,7 +54,14 @@ fn main() {
             let (sender, receiver) = channel::<SearchMessage>();
             search(sender, &[lua_file], &keyword, Some(Output::stdout()));
             while let SearchMessage::Continue(lua_file, res) = receiver.recv().unwrap() {
-                let series_list = res.unwrap();
+                let series_list = match res {
+                    Ok(o) => o,
+                    Err(e) => {
+                        println!("{} error occurred:", lua_file.name);
+                        println!("{}", e);
+                        return;
+                    },
+                };
                 println!("name: {}", lua_file.name);
                 for series in series_list {
                     println!("================================");
