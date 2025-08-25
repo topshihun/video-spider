@@ -2232,7 +2232,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "videospider"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "config",
  "dirs",
@@ -2246,7 +2246,7 @@ dependencies = [
 
 [[package]]
 name = "videospidercli"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "clap",
  "videospider",
@@ -2254,7 +2254,7 @@ dependencies = [
 
 [[package]]
 name = "videospidertui"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "crossterm",
  "ratatui",
