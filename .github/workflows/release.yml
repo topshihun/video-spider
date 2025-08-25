@@ -9,8 +9,6 @@ jobs:
   generate-changelog:
     name: Generate Changelog
     runs-on: ubuntu-latest
-    outputs:
-      changelog-generated: ${{ steps.set-output.outputs.changelog-generated }}
 
     steps:
       - name: Checkout code
@@ -20,7 +18,7 @@ jobs:
       - name: Setup cargo
         uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install git-cliff
-        run: cargo install git-cliff
+        uses: kenji-miyake/setup-git-cliff@v1
       - name: Generate changelog
         run: |
           git-cliff --latest
@@ -52,10 +50,6 @@ jobs:
             binary_postfix: ".exe"
 
     steps:
-      - name: Download changelog
-        uses: actions/download-artifact@v4
-        with:
-          name: changelog
       - name: Installing Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
@@ -92,6 +86,10 @@ jobs:
           else
             shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
           fi
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
       - name: Release assets
         uses: softprops/action-gh-release@v2
         with:
