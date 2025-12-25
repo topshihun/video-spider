@@ -1,12 +1,8 @@
 use clap::Parser;
 use clap::Subcommand;
+use luacore;
+use luacore::Output;
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
-use videospider::Output;
-use videospider::get_config_path;
-use videospider::get_lua_files;
-use videospider::luafiles::LuaFile;
-use videospider::search::{SearchMessage, search};
 
 #[derive(Parser)]
 #[command(version, about = "A test videospider tool")]
@@ -17,8 +13,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// List all lua files in configuration path.
-    Show,
     /// Search keyword by lua.
     Search {
         /// lua path
@@ -26,54 +20,47 @@ enum Commands {
         /// keyword
         keyword: String,
     },
+    /// Get detail
+    GetDetail {
+        /// lua path
+        lua_path: PathBuf,
+        /// data
+        data: String,
+    },
 }
 
 fn main() {
     let command = Cli::parse().command;
     match command {
-        Commands::Show => {
-            let lua_file_list = get_lua_files();
-            println!(
-                "The number of lua files: {} in {}",
-                lua_file_list.len(),
-                get_config_path().to_string_lossy()
-            );
-            for lua_file in lua_file_list {
-                println!(
-                    "name: {} \tpath: {}",
-                    lua_file.name,
-                    lua_file.path.to_string_lossy()
-                );
+        Commands::Search { lua_path, keyword } => {
+            let datas = match luacore::search(&lua_path, &keyword, Some(Output::stdout())) {
+                Ok(o) => o,
+                Err(e) => {
+                    eprintln!("search failed:");
+                    eprintln!("{}", e);
+                    panic!();
+                }
+            };
+            println!("keyword: {}", &keyword);
+            for data in datas {
+                println!("{}", data);
             }
         }
-        Commands::Search { lua_path, keyword } => {
-            let lua_file = LuaFile {
-                name: lua_path.file_name().unwrap().to_string_lossy().into_owned(),
-                path: lua_path,
-            };
-            let (sender, receiver) = channel::<SearchMessage>();
-            search(sender, &[lua_file], &keyword, Some(Output::stdout()));
-            while let SearchMessage::Continue(lua_file, res) = receiver.recv().unwrap() {
-                let series_list = match res {
-                    Ok(o) => o,
-                    Err(e) => {
-                        println!("{} error occurred:", lua_file.name);
-                        println!("{}", e);
-                        return;
-                    }
-                };
-                println!("name: {}", lua_file.name);
-                for series in series_list {
-                    println!("================================");
-                    println!("\tname: {}", series.name);
-                    println!("\tdescription: {}", series.description);
-                    println!("\timage: {}", series.image);
-                    println!("\tepisodes:");
-                    for episode in series.episodes {
-                        println!("\t\tname: {} url: {}", episode.name, episode.addr);
-                    }
-                    println!("================================");
+        Commands::GetDetail { lua_path, data } => {
+            let series = match luacore::get_detail(&lua_path, &data, Some(Output::stdout())) {
+                Ok(o) => o,
+                Err(e) => {
+                    eprintln!("get_detail failed:");
+                    eprintln!("{}", e);
+                    panic!();
                 }
+            };
+            println!("data: {}", &data);
+            println!("name: {}", series.name);
+            println!("description: {}", series.description);
+            println!("image: {}", series.image);
+            for episode in series.episodes {
+                println!("\tname: {}\turl:{}", episode.name, episode.addr);
             }
         }
     }
