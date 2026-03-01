@@ -4,6 +4,7 @@ import "./App.css";
 import Home from "./components/Home";
 import Search from "./components/Search";
 import NavSeriesPage from "./components/NavSeriesPage";
+import CloseableButton from "./components/CloseableButton";
 
 const StyleSelectSeries = {
   display: "flex",
@@ -105,25 +106,19 @@ function App() {
         <div style={StyleSelectSeries}>
           {selected_series.map((series) => (
             <div>
-              <button
-                key={series.id}
+              <CloseableButton
+                content={series.title}
                 onClick={() => {
                   setSelectedSeriesPage(series);
                   setTab(Tab.SERIES);
                 }}
-              >
-                {series.title}
-              </button>
-              <button
-                onClick={() => {
+                close={() => {
                   setTab(Tab.SEARCH);
                   setSelectedSeries(
                     selected_series.filter((s) => s.id !== series.id),
                   );
                 }}
-              >
-                close
-              </button>
+              />
             </div>
           ))}
         </div>

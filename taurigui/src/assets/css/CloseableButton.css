@@ -1,0 +1,14 @@
+.close-icon {
+    background-color: #f0f0f0;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.close-icon:hover {
+    background-color: #ffffff;
+}
+
+.close-icon:active {
+    background-color: #e0e0e0;
+}
